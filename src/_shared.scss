@@ -1,0 +1,77 @@
+$colors: (
+  primary: #5656d8,
+  primary-hover: #3e3ea1,
+  secondary: #8b889c,
+  background-color: #fcfcfc,
+  input: #f2f2f2,
+  text-color: #2b3033,
+  border: #e6e6e6,
+);
+
+@function color($color-name) {
+  @return map-get($colors, $color-name);
+}
+
+$breakpoint: 1250px;
+$breakpoint2: 480px;
+$breakpoint3: 900px;
+$breakpoint4: 750px;
+
+
+@mixin breakpoint {
+  @media (max-width: #{$breakpoint}) {
+    @content;
+  }
+}
+
+@mixin breakpoint2 {
+  @media (max-width: #{$breakpoint2}) {
+    @content;
+  }
+}
+
+@mixin breakpoint3 {
+  @media (max-width: #{$breakpoint3}) {
+    @content;
+  }
+}
+
+@mixin breakpoint4 {
+  @media (max-width: #{$breakpoint4}) {
+    @content;
+  }
+}
+
+.primary-button {
+  color: #fff;
+  background-color: color(primary);
+  appearance: none;
+  outline: none;
+  border: 1px solid color(primary);
+  cursor: pointer;
+  border-radius: 18px;
+  padding: 12px 22px;
+  font-size: 16px;
+}
+
+.secondary-button {
+  color: color(secondary);
+  background-color: transparent;
+  appearance: none;
+  outline: none;
+  border: 1px solid color(secondary);
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 18px;
+  padding: 12px 22px;
+  transition: 0.2s linear;
+}
+
+.primary-button:hover {
+  background-color: color(primary-hover);
+}
+
+.secondary-button:hover {
+  background-color: color(secondary);
+  color: #fff;
+}

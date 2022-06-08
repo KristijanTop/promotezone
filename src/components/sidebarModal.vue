@@ -1,0 +1,149 @@
+<template>
+  <div class="modal">
+    <div class="modal__sidebar">
+      <div class="modal__sidebar__user">
+        <router-link
+          :to="{
+            name: 'MyProfile',
+            params: { username: store.currentUser.name },
+          }"
+        >
+          <img :src="store.currentUser.profileImg" height="75" />
+          <h3>{{ store.currentUser.name }}</h3>
+        </router-link>
+      </div>
+      <div class="modal__sidebar__links">
+        <router-link to="/"
+          ><span></span>
+          <div class="modal__sidebar__links__link">Home</div></router-link
+        >
+        <router-link to="#"
+          ><span></span>
+          <div class="modal__sidebar__links__link">Messages</div></router-link
+        >
+        <router-link to="#"
+          ><span></span>
+          <div class="modal__sidebar__links__link">
+            My Collaborators
+          </div></router-link
+        >
+        <router-link to="#"
+          ><span></span>
+          <div class="modal__sidebar__links__link">Settings</div></router-link
+        >
+        <router-link
+          :to="{
+            name: 'MyProfile',
+            params: { username: store.currentUser.name },
+          }"
+          ><span></span>
+          <div class="modal__sidebar__links__link">My Profile</div></router-link
+        >
+      </div>
+      <div class="sidebar__links sidebar__links__logout">
+        <span></span>
+        <div class="sidebar__links__link" @click="$emit('logOut')">Log out</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import store from "@/store";
+
+export default {
+  name: "sidebarModal",
+  data() {
+    return {
+      store,
+    };
+  },
+};
+</script>
+
+<style lang="scss">
+@import "@/_shared.scss";
+
+.modal {
+  position: fixed;
+  z-index: 1;
+  margin-top: 77px;
+  @include breakpoint {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  &__sidebar {
+    display: block;
+    height: 100vh;
+    width: 300px;
+    background-color: #fff;
+    border-right: 1px solid color(border);
+    @include breakpoint {
+      transition: all 0.5s ease;
+    }
+
+    &__user {
+      display: block;
+      text-align: center;
+      border-bottom: 1px solid color(border);
+      padding: 35px;
+
+      img {
+        border-radius: 50%;
+        margin-bottom: 10px;
+      }
+
+      a {
+        text-decoration: none;
+        color: color(text-color);
+      }
+    }
+
+    &__links {
+      display: block;
+      padding: 20px 35px;
+      font-size: 16px;
+      border-bottom: 1px solid color(border);
+
+      a {
+        text-decoration: none;
+        color: color(secondary);
+        font-weight: 600;
+        padding: 15px 0px;
+        display: flex;
+
+        &.router-link-exact-active {
+          color: color(primary);
+          fill: color(primary);
+          stroke: color(primary);
+        }
+      }
+
+      span {
+        font-size: 25px;
+        margin-right: 20px;
+        font-weight: 50;
+      }
+
+      &__link {
+        padding: 4px 0px;
+      }
+    }
+    &__links__logout {
+      border: none;
+      border: none;
+      text-decoration: none;
+      color: color(secondary);
+      font-weight: 600;
+      display: flex;
+      padding: 35px;
+      cursor: pointer;
+    }
+  }
+}
+</style>
