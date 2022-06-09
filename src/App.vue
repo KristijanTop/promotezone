@@ -60,11 +60,7 @@
       </div>
 
       <div class="nav__icons">
-        <button
-          type="button"
-          @click="toggleModal()"
-          class="nav__icons__icon nav__icons__burger"
-        >
+        <button type="button" @click="toggleModal()" class="nav__icons__burger" ref="sidebarModalToggle">
           <icon-library name="burger"></icon-library>
         </button>
         <icon-library
@@ -72,7 +68,52 @@
           class="nav__icons__icon nav__icons__search"
         ></icon-library>
         <icon-library name="chat" class="nav__icons__icon"></icon-library>
-        <icon-library name="user" class="nav__icons__icon"></icon-library>
+        <img
+          :src="store.currentUser.profileImg"
+          class="profileIcon"
+          @click="profileDropdownVisible = !profileDropdownVisible"
+          ref="profileDropdownToggle"
+        />
+      </div>
+
+      <div
+        class="nav__profileDropdown"
+        v-if="profileDropdownVisible"
+        ref="profileDropdown"
+      >
+        <ul>
+          <li>
+            <router-link
+              :to="{
+                name: 'MyProfile',
+                params: { username: store.currentUser.name },
+              }"
+            >
+              <span class="icon" @click="profileDropdownVisible = false"></span>
+              <span @click="profileDropdownVisible = false">My Profile</span>
+            </router-link>
+          </li>
+
+          <li>
+            <span class="icon"></span>
+            <span>My Collaborators</span>
+          </li>
+          <li>
+            <span class="icon"></span>
+            <span>Settings</span>
+          </li>
+          <li class="logout">
+            <div
+              @click="
+                logOut();
+                profileDropdownVisible = false;
+              "
+            >
+              <span class="icon"></span>
+              <span>Log out</span>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
 
@@ -156,6 +197,7 @@ export default {
       width: null,
       store,
       searchTerm: null,
+      profileDropdownVisible: false,
     };
   },
 
@@ -170,6 +212,13 @@ export default {
   mounted() {
     this.checkScreen();
     window.addEventListener("resize", this.checkScreen);
+    document.addEventListener("click", this.closeProfileDropdown);
+    document.addEventListener("click", this.closeSidebarModal);
+  },
+
+  beforeDestroy () {
+    document.removeEventListener('click',this.closeProfileDropdown);
+    document.removeEventListener('click',this.closeSidebarModal);
   },
 
   components: {
@@ -178,7 +227,7 @@ export default {
     sidebarModal,
   },
   methods: {
-    toggleModal() {
+    toggleModal(e) {
       this.modalActive = !this.modalActive;
     },
     checkScreen() {
@@ -201,6 +250,23 @@ export default {
           console.error(error);
         });
     },
+
+    closeProfileDropdown(e) {
+      let el = this.$refs.profileDropdown;
+      let toggle = this.$refs.profileDropdownToggle;
+      let target = e.target;
+      if (el !== target && !el.contains(target) && target !== toggle) {
+        this.profileDropdownVisible = false;
+      }
+    },
+    closeSidebarModal(e) {
+      let toggle = this.$refs.sidebarModalToggle;
+      let target = e.target;
+      console.log(target);
+      if (!toggle.contains(target)) {
+        this.modalActive = false;
+      }
+    }
   },
 };
 </script>
@@ -328,47 +394,42 @@ export default {
       position: absolute;
       top: -20px;
       width: 100%;
-      box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
       border-radius: 0 0 5px 5px;
-      
+      overflow: hidden;
 
       &__results {
-        margin-top: 76px;
-        padding-top: 21px;
-        padding-bottom: 11px;
-        max-height: 250px;  
+        margin-top: 75px;
+        max-height: 250px;
         overflow: auto;
-        border-top: 1px solid color(border);     
 
         &__result {
-          margin-bottom: 10px;
-          margin-left: 30px;
-
           img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             margin-right: 12px;
-            display: inline-block;
-            vertical-align: middle;
           }
 
           p {
-            display: inline-block;
-            vertical-align: middle;
             font-size: 18px;
           }
 
           a {
             text-decoration: none;
             color: color(text-color);
+            display: flex;
+            place-items: center;
+            padding: 10px 20px;
+          }
+          a:hover {
+            background-color: #f7f7f7;
           }
         }
       }
 
       .no-result {
-        margin-left: 30px;
-        margin-bottom: 30px;
+        margin: 21px 20px;
       }
     }
   }
@@ -377,7 +438,9 @@ export default {
     display: flex;
     width: 100%;
     justify-content: right;
+    place-items: center;
     padding-right: 10px;
+    gap: 15px;
 
     &__burger {
       appearance: none;
@@ -386,6 +449,8 @@ export default {
       background: none;
       display: none;
       cursor: pointer;
+      width: 30px;
+      height: 30px;
 
       @include breakpoint {
         display: block;
@@ -394,8 +459,10 @@ export default {
 
     &__icon {
       max-width: 100%;
-      padding: 0px 10px;
-      margin: auto 0;
+      display: flex;
+      place-items: center;
+      width: 30px;
+      height: 30px;
     }
 
     &__search {
@@ -403,6 +470,66 @@ export default {
 
       @include breakpoint {
         display: block;
+      }
+    }
+
+    .profileIcon {
+      height: 30px;
+      width: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+  }
+
+  &__profileDropdown {
+    background: #fff;
+    position: absolute;
+    right: 10px;
+    top: 65px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 5px;
+    padding-top: 15px;
+
+    ul {
+      list-style: none;
+
+      a {
+        text-decoration: none;
+        display: flex;
+        place-items: center;
+        color: color(secondary);
+
+        &.router-link-exact-active {
+          color: color(primary);
+          fill: color(primary);
+          stroke: color(primary);
+
+          span:not(.icon) {
+            font-weight: 600;
+          }
+        }
+      }
+
+      li {
+        font-size: 16px;
+        padding: 10px 25px;
+        color: color(secondary);
+        display: flex;
+        place-items: center;
+
+        .icon {
+          font-size: 25px;
+          padding-right: 12px;
+        }
+      }
+      .logout {
+        border-top: 1px solid color(border);
+        margin-top: 10px;
+        padding: 15px 25px;
+
+        span {
+          cursor: pointer;
+        }
       }
     }
   }

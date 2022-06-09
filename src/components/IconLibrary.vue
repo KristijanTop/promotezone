@@ -7,7 +7,7 @@
 <svg v-else-if="name ==='burger'" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#2B3033" class="bi bi-list" viewBox="0 0 16 16">
   <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
 </svg>
-<svg class="chat" v-else-if="name === 'chat'" width="27" height="27" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg class="chat" v-else-if="name === 'chat'" width="28" height="28" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g class="chat">
 <path id="outline" d="M10.7999 0.800029C7.29992 0.700029 3.99992 2.60003 2.19992 5.60003C0.39992 8.60003 0.299919 12.3 1.89992 15.4L2.09992 15.8C2.29992 16.1 2.29992 16.5 2.19992 16.8C1.89992 17.6 1.69992 18.3 1.49992 19.1C1.49992 19.5 1.59992 19.7 1.99992 19.7C2.79992 19.5 3.49992 19.3 4.19992 19.1C4.49992 19 4.89992 19 5.19992 19.2C5.49992 19.3 5.99992 19.7 6.09992 19.7C9.79992 21.6 14.2999 21.1 17.3999 18.4C20.4999 15.7 21.5999 11.3 20.1999 7.40003C18.7999 3.50003 14.9999 0.800029 10.7999 0.800029Z" stroke="#2B3033" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <g>
