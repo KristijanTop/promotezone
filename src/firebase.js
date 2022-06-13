@@ -39,5 +39,5 @@ export {
     arrayUnion,
     orderBy,
     query,
-    where
+    where,
 }

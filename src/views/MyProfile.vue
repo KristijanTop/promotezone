@@ -3,7 +3,59 @@
     <div class="myProfile">
       <div class="myProfile__heading">
         <div class="myProfile__heading__img">
-          <img :src="store.currentUser.profileImg" />
+          <img
+            :src="store.currentUser.profileImg"
+            v-if="!profileImgUpdate && store.currentUser.profileImg"
+          />
+          <img
+            src="@/assets/user.svg"
+            v-if="!profileImgUpdate && !store.currentUser.profileImg"
+            class="profileImgPlaceholder"
+          />
+          <div
+            class="myProfile__heading__img__update"
+            @click="toggleUpdateProfileImg()"
+            v-if="!profileImgUpdate"
+          >
+            <span>Change</span>
+          </div>
+          <croppa
+            v-show="profileImgUpdate"
+            v-model="updateData.profileImgReference"
+            :width="90"
+            :height="90"
+            placeholder=""
+            placeholder-color="#2b3033"
+            :placeholder-font-size="10"
+            canvas-color="transparent"
+            :show-remove-button="false"
+            remove-button-color="#8b889c"
+            :remove-button-size="28"
+            :prevent-white-space="true"
+          >
+            <img slot="placeholder" src="@/assets/camera.svg" />
+            <div
+              class="spinner"
+              v-if="
+                updateData.profileImgReference &&
+                updateData.profileImgReference.loading
+              "
+            ></div>
+          </croppa>
+          <button
+            class="discardBtn"
+            v-if="profileImgUpdate"
+            @click="discardChanges()"
+          >
+            <img src="@/assets/x.svg" />
+          </button>
+          <button
+            class="updateBtn"
+            v-if="profileImgUpdate"
+            @click="updateProfileImg()"
+          >
+            <img src="@/assets/check.svg" />
+          </button>
         </div>
         <div class="myProfile__heading__text">
           <h2>{{ store.currentUser.name }}</h2>
@@ -131,6 +183,16 @@ import store from "@/store";
 import IconLibrary from "@/components/IconLibrary.vue";
 import carousel from "@/components/carousel.vue";
 import carouselSlide from "@/components/carouselSlide.vue";
+import {
+  db,
+  doc,
+  updateDoc,
+  storage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  arrayUnion,
+} from "@/firebase";
 
 export default {
   name: "MyProfile",
@@ -139,6 +201,10 @@ export default {
       store,
       carouselVisible: false,
       visibleImage: null,
+      profileImgUpdate: false,
+      updateData: {
+        profileImgReference: null,
+      },
     };
   },
 
@@ -161,6 +227,94 @@ export default {
         this.visibleImage = this.imagesLength - 1;
       } else {
         this.visibleImage--;
+      }
+    },
+    toggleUpdateProfileImg() {
+      this.profileImgUpdate = true;
+      this.updateData.profileImgReference.chooseFile();
+    },
+    discardChanges() {
+      this.profileImgUpdate = false;
+      this.updateData.profileImgReference.remove();
+    },
+    async updateProfileImg() {
+      // Create the file metadata
+      /** @type {any} */
+      const metadata = {
+        contentType: "image",
+      };
+
+      if (this.updateData.profileImgReference.hasImage()) {
+        this.updateData.profileImgReference.generateBlob((blobData) => {
+          let profileImgName = store.currentUser.name + "-profile-image.png";
+
+          const storageRef = ref(
+            storage,
+            store.currentUser.name +
+              `(${store.currentUser.uid})/` +
+              profileImgName
+          );
+          const uploadProfileImg = uploadBytesResumable(
+            storageRef,
+            blobData,
+            metadata
+          );
+
+          // Listen for state changes, errors, and completion of the upload.
+          uploadProfileImg.on(
+            "state_changed",
+            (snapshot) => {
+              // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log("Upload is " + progress + "% done");
+              switch (snapshot.state) {
+                case "paused":
+                  console.log("Upload is paused");
+                  break;
+                case "running":
+                  console.log("Upload is running");
+                  break;
+              }
+            },
+            (error) => {
+              // A full list of error codes is available at
+              // https://firebase.google.com/docs/storage/web/handle-errors
+              switch (error.code) {
+                case "storage/unauthorized":
+                  // User doesn't have permission to access the object
+                  break;
+                case "storage/canceled":
+                  // User canceled the upload
+                  break;
+
+                // ...
+
+                case "storage/unknown":
+                  // Unknown error occurred, inspect error.serverResponse
+                  break;
+              }
+            },
+            async () => {
+              // Upload completed successfully, now we can get the download URL
+              const profileImgUrl = await getDownloadURL(
+                uploadProfileImg.snapshot.ref
+              );
+              await updateDoc(doc(db, "accounts", store.currentUser.uid), {
+                profileImg: profileImgUrl,
+              });
+              this.profileImgUpdate = false;
+              store.currentUser.profileImg = profileImgUrl;
+              this.updateData.profileImgReference.remove();
+            }
+          );
+        });
+      } else {
+        await updateDoc(doc(db, "accounts", store.currentUser.uid), {
+          profileImg: null,
+        });
+        this.profileImgUpdate = false;
+        store.currentUser.profileImg = null;
       }
     },
   },
@@ -199,11 +353,82 @@ export default {
     &__img {
       height: 90px;
       width: 90px;
+      background: color(input);
       border-radius: 50%;
-      overflow: hidden;
+      display: flex;
+      place-items: center;
+      justify-content: center;
+
       img {
         width: 100%;
+        border-radius: 50%;
       }
+
+      .profileImgPlaceholder {
+        width: 87%;
+      }
+
+      &__update {
+        height: 90px;
+        width: 90px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #f2f2f2be;
+        opacity: 0;
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        z-index: 20;
+        cursor: pointer;
+        display: flex;
+        place-items: center;
+        transition: 0.2s ease;
+        padding: 2px;
+
+        span {
+          width: 100%;
+          text-align: center;
+          font-weight: 600;
+        }
+      }
+
+      &__update:hover {
+        opacity: 1;
+      }
+    }
+
+    .discardBtn {
+      position: absolute;
+      margin-left: 75px;
+      margin-top: -70px;
+      background: #fff;
+      border-radius: 50%;
+      border: 1px solid #fff;
+      cursor: pointer;
+      transition: 0.2s ease-in;
+      height: 28px;
+      width: 28px;
+    }
+
+    .discardBtn:hover {
+      transform: scale(1.1);
+    }
+
+    .updateBtn {
+      position: absolute;
+      margin-left: 75px;
+      margin-top: 70px;
+      background: #fff;
+      border-radius: 50%;
+      border: 1px solid #fff;
+      cursor: pointer;
+      transition: 0.2s ease-in;
+      height: 28px;
+      width: 28px;
+    }
+
+    .updateBtn:hover {
+      transform: scale(1.1);
     }
 
     &__text {
@@ -264,6 +489,53 @@ export default {
       border-radius: 5px;
       cursor: pointer;
     }
+  }
+}
+
+.croppa-container {
+  background-color: color(input);
+  border-radius: 50%;
+
+  canvas {
+    border-radius: 50%;
+  }
+}
+
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 70px;
+  width: 70px;
+  margin-left: -35px;
+  margin-top: -35px;
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+  border: 3px solid #ddd;
+  border-top: 3px solid color(primary);
+  border-radius: 50%;
+}
+
+@-webkit-keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 </style>

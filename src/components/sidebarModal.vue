@@ -8,7 +8,8 @@
             params: { username: store.currentUser.name },
           }"
         >
-          <img :src="store.currentUser.profileImg" height="75" />
+          <img :src="store.currentUser.profileImg" height="75" v-if="store.currentUser.profileImg"/>
+          <img src="@/assets/user.svg" height="75" v-if="!store.currentUser.profileImg"/>
           <h3>{{ store.currentUser.name }}</h3>
         </router-link>
       </div>

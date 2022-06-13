@@ -1,6 +1,6 @@
 <template>
   <div class="register">
-    <loading-modal v-if="openLoading" :loading="loading"/>
+    <loading-modal v-if="openLoading" :loading="loading" />
     <div class="register__sidebar">
       <div class="register__sidebar__title">
         <img
@@ -964,7 +964,7 @@ export default {
 
   components: {
     IconLibrary,
-    loadingModal
+    loadingModal,
   },
   methods: {
     next() {
@@ -1068,7 +1068,7 @@ export default {
           this.step = 3;
         }
       }
-      
+
       store.loadingTime = this.registration.files.length * 3000;
 
       if (valid) {
@@ -1078,7 +1078,7 @@ export default {
           this.auth.password
         );
 
-        this.openLoading = true;        
+        this.openLoading = true;
 
         await setDoc(doc(db, "accounts", user.uid), {
           uid: user.uid,
@@ -1101,65 +1101,71 @@ export default {
           contentType: "image",
         };
 
-        this.registration.profileImgReference.generateBlob((blobData) => {
-          let profileImgName = this.registration.name + "-profile-image.png";
+        if (this.registration.profileImgReference.hasImage()) {
+          this.registration.profileImgReference.generateBlob((blobData) => {
+            let profileImgName = this.registration.name + "-profile-image.png";
 
-          const storageRef = ref(
-            storage,
-            this.registration.name + `(${user.uid})/` + profileImgName
-          );
-          const uploadProfileImg = uploadBytesResumable(
-            storageRef,
-            blobData,
-            metadata
-          );
+            const storageRef = ref(
+              storage,
+              this.registration.name + `(${user.uid})/` + profileImgName
+            );
+            const uploadProfileImg = uploadBytesResumable(
+              storageRef,
+              blobData,
+              metadata
+            );
 
-          // Listen for state changes, errors, and completion of the upload.
-          uploadProfileImg.on(
-            "state_changed",
-            (snapshot) => {
-              // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-              const progress =
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              console.log("Upload is " + progress + "% done");
-              switch (snapshot.state) {
-                case "paused":
-                  console.log("Upload is paused");
-                  break;
-                case "running":
-                  console.log("Upload is running");
-                  break;
+            // Listen for state changes, errors, and completion of the upload.
+            uploadProfileImg.on(
+              "state_changed",
+              (snapshot) => {
+                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                const progress =
+                  (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log("Upload is " + progress + "% done");
+                switch (snapshot.state) {
+                  case "paused":
+                    console.log("Upload is paused");
+                    break;
+                  case "running":
+                    console.log("Upload is running");
+                    break;
+                }
+              },
+              (error) => {
+                // A full list of error codes is available at
+                // https://firebase.google.com/docs/storage/web/handle-errors
+                switch (error.code) {
+                  case "storage/unauthorized":
+                    // User doesn't have permission to access the object
+                    break;
+                  case "storage/canceled":
+                    // User canceled the upload
+                    break;
+
+                  // ...
+
+                  case "storage/unknown":
+                    // Unknown error occurred, inspect error.serverResponse
+                    break;
+                }
+              },
+              async () => {
+                // Upload completed successfully, now we can get the download URL
+                const profileImgUrl = await getDownloadURL(
+                  uploadProfileImg.snapshot.ref
+                );
+                await updateDoc(doc(db, "accounts", user.uid), {
+                  profileImg: profileImgUrl,
+                });
               }
-            },
-            (error) => {
-              // A full list of error codes is available at
-              // https://firebase.google.com/docs/storage/web/handle-errors
-              switch (error.code) {
-                case "storage/unauthorized":
-                  // User doesn't have permission to access the object
-                  break;
-                case "storage/canceled":
-                  // User canceled the upload
-                  break;
-
-                // ...
-
-                case "storage/unknown":
-                  // Unknown error occurred, inspect error.serverResponse
-                  break;
-              }
-            },
-            async () => {
-              // Upload completed successfully, now we can get the download URL
-              const profileImgUrl = await getDownloadURL(
-                uploadProfileImg.snapshot.ref
-              );
-              await updateDoc(doc(db, "accounts", user.uid), {
-                profileImg: profileImgUrl,
-              });
-            }
-          );
-        });
+            );
+          });
+        } else {
+          await updateDoc(doc(db, "accounts", user.uid), {
+            profileImg: null,
+          });
+        }
 
         for (let i = 0; i < this.registration.files.length; i++) {
           setTimeout(async () => {
@@ -1230,7 +1236,7 @@ export default {
                 await updateDoc(doc(db, "accounts", user.uid), {
                   images: arrayUnion(image),
                 });
-                if ((i == this.registration.files.length - 1)) {
+                if (i == this.registration.files.length - 1) {
                   this.loading = false;
                 }
               }
@@ -1624,7 +1630,7 @@ export default {
           }
 
           &__removeBtn:hover {
-            transform: scale(1.2);
+            transform: scale(1.1);
           }
         }
       }
@@ -1681,7 +1687,7 @@ export default {
   }
 
   svg.icon-remove:hover {
-    transform: scale(1.2);
+    transform: scale(1.1);
   }
 }
 

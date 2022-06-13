@@ -145,6 +145,10 @@ export default {
       console.log("ovo je data" + store.profileData)
   },
 
+  beforeDestroy() {
+    store.profileData = null;
+  },
+
   computed: {
     imagesLength() {
       return store.profileData.images.length;

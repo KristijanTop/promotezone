@@ -22,7 +22,7 @@
           src="@/assets/x.svg"
           class="x-icon"
           v-if="searchTerm"
-          @click="searchTerm = null"
+          @click="searchTerm = ''"
         />
         <div class="nav__search__box" v-if="searchTerm">
           <div class="nav__search__box__results">
@@ -41,13 +41,13 @@
                   :src="card.profileImg"
                   @click="
                     store.profileData = card;
-                    searchTerm = null;
+                    searchTerm = '';
                   "
                 />
                 <p
                   @click="
                     store.profileData = card;
-                    searchTerm = null;
+                    searchTerm = '';
                   "
                 >
                   {{ card.name }}
@@ -60,16 +60,32 @@
       </div>
 
       <div class="nav__icons">
-        <button type="button" @click="toggleModal()" class="nav__icons__burger" ref="sidebarModalToggle">
+        <button
+          type="button"
+          @click="toggleModal()"
+          class="nav__icons__burger"
+          ref="sidebarModalToggle"
+        >
           <icon-library name="burger"></icon-library>
         </button>
-        <icon-library
-          name="search"
-          class="nav__icons__icon nav__icons__search"
-        ></icon-library>
+        <button
+          class="nav__icons__search nav__icons__icon"
+          @click="toggleSearch()"
+          ref="searchDropdownMobileToggle"
+        >
+          <icon-library name="search"></icon-library>
+        </button>
         <icon-library name="chat" class="nav__icons__icon"></icon-library>
         <img
+          v-if="store.currentUser.profileImg"
           :src="store.currentUser.profileImg"
+          class="profileIcon"
+          @click="profileDropdownVisible = !profileDropdownVisible"
+          ref="profileDropdownToggle"
+        />
+        <img
+          v-if="!store.currentUser.profileImg"
+          src="@/assets/user-black.svg"
           class="profileIcon"
           @click="profileDropdownVisible = !profileDropdownVisible"
           ref="profileDropdownToggle"
@@ -89,7 +105,9 @@
                 params: { username: store.currentUser.name },
               }"
             >
-              <span class="icon" @click="profileDropdownVisible = false"></span>
+              <span class="icon" @click="profileDropdownVisible = false"
+                ></span
+              >
               <span @click="profileDropdownVisible = false">My Profile</span>
             </router-link>
           </li>
@@ -114,6 +132,47 @@
             </div>
           </li>
         </ul>
+      </div>
+
+      <div class="nav__searchDropdownMobile" v-if="searchDropdownMobileVisible" ref="searchDropdownMobile">
+        <input type="text" placeholder="Search" v-model="searchTerm"/>
+        <img
+          src="@/assets/x.svg"
+          class="x-icon"
+          v-if="searchTerm"
+          @click="searchTerm = ''"
+        />
+        <div class="nav__searchDropdownMobile__box" v-if="searchTerm">
+          <div
+            v-for="card in searchedCards"
+            :key="card.id"
+            class="nav__searchDropdownMobile__box__result"
+          >
+            <router-link
+              :to="{
+                name: 'Profile',
+                params: { profileName: card.name },
+              }"
+            >
+              <img
+                :src="card.profileImg"
+                @click="
+                  store.profileData = card;
+                  searchTerm = '';
+                "
+              />
+              <p
+                @click="
+                  store.profileData = card;
+                  searchTerm = '';
+                "
+              >
+                {{ card.name }}
+              </p>
+            </router-link>
+          </div>
+        </div>
+        <p class="no-result" v-if="searchedCards.length < 1">No results</p>
       </div>
     </div>
 
@@ -196,8 +255,9 @@ export default {
       modalActive: false,
       width: null,
       store,
-      searchTerm: null,
+      searchTerm: "",
       profileDropdownVisible: false,
+      searchDropdownMobileVisible: false,
     };
   },
 
@@ -214,11 +274,13 @@ export default {
     window.addEventListener("resize", this.checkScreen);
     document.addEventListener("click", this.closeProfileDropdown);
     document.addEventListener("click", this.closeSidebarModal);
+    document.addEventListener("click", this.closeSearchDropdownMobile);
   },
 
-  beforeDestroy () {
-    document.removeEventListener('click',this.closeProfileDropdown);
-    document.removeEventListener('click',this.closeSidebarModal);
+  beforeDestroy() {
+    document.removeEventListener("click", this.closeProfileDropdown);
+    document.removeEventListener("click", this.closeSidebarModal);
+    document.removeEventListener("click", this.closeSearchDropdownMobile);
   },
 
   components: {
@@ -229,6 +291,9 @@ export default {
   methods: {
     toggleModal(e) {
       this.modalActive = !this.modalActive;
+    },
+    toggleSearch() {
+      this.searchDropdownMobileVisible = !this.searchDropdownMobileVisible;
     },
     checkScreen() {
       this.width = window.innerWidth;
@@ -266,7 +331,15 @@ export default {
       if (!toggle.contains(target)) {
         this.modalActive = false;
       }
-    }
+    },
+    closeSearchDropdownMobile(e) {
+      let el = this.$refs.searchDropdownMobile;
+      let toggle = this.$refs.searchDropdownMobileToggle;
+      let target = e.target;
+      if (el !== target && !el.contains(target) && !toggle.contains(target)) {
+        this.searchDropdownMobileVisible = false;
+      }
+    },
   },
 };
 </script>
@@ -384,7 +457,7 @@ export default {
       right: 5%;
       margin-right: 20px;
       height: 12px;
-      widows: 12px;
+      width: 12px;
       z-index: 2;
       cursor: pointer;
     }
@@ -429,8 +502,84 @@ export default {
       }
 
       .no-result {
-        margin: 21px 20px;
+        margin: 20px;
       }
+    }
+  }
+
+  &__searchDropdownMobile {
+    position: absolute;
+    background: #fff;
+    right: 105px;
+    top: 65px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 5px;
+    width: 222px;
+    display: none;
+
+    @include breakpoint {
+    display: block;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 20px;
+      width: 202px;
+      padding-right: 37px;
+      font-size: 15px;
+      margin: 10px;
+      font-family: "GothamBook";
+      outline: none;
+      border: none;
+      transition: 0.2s ease-in;
+      z-index: 2;
+      background: color(input);
+    }
+
+    input::placeholder {
+      color: color(secondary);
+    }
+
+    .x-icon {
+      position: absolute;
+      height: 12px;
+      width: 12px;
+      margin-top: 22px;
+      right: 24px;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    &__box {
+      max-height: 250px;
+      overflow: auto;
+
+      &__result {
+        img {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          margin-right: 12px;
+        }
+
+        p {
+          font-size: 18px;
+        }
+
+        a {
+          text-decoration: none;
+          color: color(text-color);
+          display: flex;
+          place-items: center;
+          padding: 10px 20px;
+        }
+        a:hover {
+          background-color: #f7f7f7;
+        }
+      }
+    }
+    .no-result {
+      margin: 10px 20px 20px 20px;
     }
   }
 
@@ -439,7 +588,7 @@ export default {
     width: 100%;
     justify-content: right;
     place-items: center;
-    padding-right: 10px;
+    padding-right: 15px;
     gap: 15px;
 
     &__burger {
@@ -467,6 +616,10 @@ export default {
 
     &__search {
       display: none;
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
 
       @include breakpoint {
         display: block;
