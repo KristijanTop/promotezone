@@ -113,7 +113,34 @@
       </div>
 
       <div class="myProfile__bio">
-        <p>{{ store.currentUser.bio }}</p>
+        <p v-if="!bioUpdate" ref="bioParagraph">
+          {{ store.currentUser.bio }}
+          <button @click="bioUpdate = true" class="editBtn">
+            <img src="@/assets/edit.svg" />
+          </button>
+        </p>
+        <textarea
+          v-if="bioUpdate"
+          v-model="updateData.bio"
+          :style="{ height: bioHeight }"
+          :placeholder="
+            store.currentUser.accType === 'business'
+              ? 'Enter a few words about your brand'
+              : 'Enter a few words about yourself'
+          "
+        ></textarea>
+        <img
+          src="@/assets/x.svg"
+          class="discardBioBtn"
+          v-if="bioUpdate"
+          @click="bioUpdate = false"
+        />
+        <img
+          src="@/assets/check.svg"
+          class="updateBioBtn"
+          v-if="bioUpdate"
+          @click="updateBio()"
+        />
       </div>
 
       <span>Gallery</span>
@@ -202,8 +229,10 @@ export default {
       carouselVisible: false,
       visibleImage: null,
       profileImgUpdate: false,
+      bioUpdate: false,
       updateData: {
         profileImgReference: null,
+        bio: store.currentUser.bio,
       },
     };
   },
@@ -211,6 +240,9 @@ export default {
   computed: {
     imagesLength() {
       return store.currentUser.images.length;
+    },
+    bioHeight() {
+      return this.$refs.bioParagraph.clientHeight + 24 + "px";
     },
   },
 
@@ -317,6 +349,13 @@ export default {
         store.currentUser.profileImg = null;
       }
     },
+    async updateBio() {
+      await updateDoc(doc(db, "accounts", store.currentUser.uid), {
+        bio: this.updateData.bio,
+      });
+      store.currentUser.bio = this.updateData.bio;
+      this.bioUpdate = false;
+    },
   },
 
   components: {
@@ -403,11 +442,11 @@ export default {
       margin-top: -70px;
       background: #fff;
       border-radius: 50%;
-      border: 1px solid #fff;
+      border: none;
       cursor: pointer;
       transition: 0.2s ease-in;
-      height: 28px;
-      width: 28px;
+      height: 20px;
+      width: 20px;
     }
 
     .discardBtn:hover {
@@ -420,11 +459,11 @@ export default {
       margin-top: 70px;
       background: #fff;
       border-radius: 50%;
-      border: 1px solid #fff;
+      border: none;
       cursor: pointer;
       transition: 0.2s ease-in;
-      height: 28px;
-      width: 28px;
+      height: 20px;
+      width: 20px;
     }
 
     .updateBtn:hover {
@@ -466,6 +505,50 @@ export default {
 
     p {
       line-height: 1.5;
+      text-align: justify;
+    }
+
+    .editBtn {
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      margin-left: 2px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    textarea {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background-color: color(input);
+      width: 100%;
+      resize: none;
+      font-family: "GothamBook";
+      line-height: 1.5;
+      font-size: 16px;
+      text-align: justify;
+    }
+
+    .discardBioBtn {
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      right: 65px;
+      cursor: pointer;
+      display: block;
+      margin-top: 5px;
+    }
+
+    .updateBioBtn {
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      right: 35px;
+      cursor: pointer;
+      display: block;
+      margin-top: 5px;
     }
   }
 
