@@ -144,7 +144,14 @@
       </div>
 
       <span>Gallery</span>
-      <button class="primary-button">Add</button>
+      <button class="primary-button" @click="openInput()">Add</button>
+      <input
+        type="file"
+        @change="uploadFile"
+        accept="image/*"
+        ref="fileInput"
+        style="display: none"
+      />
 
       <div class="myProfile__gallery">
         <img
@@ -160,10 +167,27 @@
     </div>
 
     <transition name="carousel">
+      <new-img-modal
+        v-if="updateData.file"
+        :fileUrl="fileUrl"
+        @close="discardAddImg()"
+        @submitImg="addNewImg"
+      />
+    </transition>
+
+    <transition name="deletePopUp">
+      <delete-pop-up
+        v-if="deletePopUpVisible"
+        @close="deletePopUpVisible = false"
+        @delete="deleteImg()"
+      />
+    </transition>
+
+    <transition name="carousel">
       <carousel
-        @next="next"
-        @prev="prev"
-        @close="carouselVisible = false"
+        @next="next(); descUpdate = false"
+        @prev="prev(); descUpdate = false"
+        @close="carouselVisible = false; descUpdate = false"
         v-if="carouselVisible"
       >
         <carousel-slide
@@ -177,12 +201,30 @@
             <div class="img-slide__heading-mobile">
               <img class="profileImg" :src="store.currentUser.profileImg" />
               <h4>{{ store.currentUser.name }}</h4>
+              <button
+                class="deleteImgBtn"
+                @click="
+                  deletePopUpVisible = true;
+                  deleteIndex = index;
+                "
+              >
+                <icon-library name="trash" />
+              </button>
             </div>
             <img class="image" :src="image.url" />
             <div class="img-slide__content">
               <div class="img-slide__content__heading">
                 <img class="profileImg" :src="store.currentUser.profileImg" />
                 <h3>{{ store.currentUser.name }}</h3>
+                <button
+                  class="deleteImgBtn"
+                  @click="
+                    deletePopUpVisible = true;
+                    deleteIndex = index;
+                  "
+                >
+                  <icon-library name="trash" />
+                </button>
               </div>
               <span class="img-slide__content__location"
                 > {{ store.currentUser.city }},
@@ -196,7 +238,36 @@
                   >{{ tag }}</span
                 >
               </div>
-              <p>{{ image.desc }}</p>
+              <p v-if="!descUpdate">
+                {{ image.desc }}
+                <button
+                  class="editBtn"
+                  @click="
+                    descUpdate = true;
+                    updateData.desc = image.desc;
+                  "
+                >
+                  <img src="@/assets/edit.svg" />
+                </button>
+              </p>
+              <img
+                src="@/assets/x.svg"
+                class="discardDescBtn"
+                v-if="descUpdate"
+                @click="descUpdate = false"
+              />
+              <img
+                src="@/assets/check.svg"
+                class="updateDescBtn"
+                v-if="descUpdate"
+                @click="updateDesc(image)"
+              />
+              <textarea
+                class="enterDesc"
+                placeholder="Enter a description"
+                v-model="updateData.desc"
+                v-if="descUpdate"
+              />
             </div>
           </div>
         </carousel-slide>
@@ -210,6 +281,8 @@ import store from "@/store";
 import IconLibrary from "@/components/IconLibrary.vue";
 import carousel from "@/components/carousel.vue";
 import carouselSlide from "@/components/carouselSlide.vue";
+import newImgModal from "@/components/newImgModal.vue";
+import deletePopUp from "@/components/deletePopUp.vue";
 import {
   db,
   doc,
@@ -218,7 +291,6 @@ import {
   ref,
   uploadBytesResumable,
   getDownloadURL,
-  arrayUnion,
 } from "@/firebase";
 
 export default {
@@ -230,10 +302,16 @@ export default {
       visibleImage: null,
       profileImgUpdate: false,
       bioUpdate: false,
+      descUpdate: false,
       updateData: {
         profileImgReference: null,
         bio: store.currentUser.bio,
+        file: null,
+        desc: null,
       },
+      fileUrl: null,
+      deletePopUpVisible: false,
+      deleteIndex: null,
     };
   },
 
@@ -356,12 +434,112 @@ export default {
       store.currentUser.bio = this.updateData.bio;
       this.bioUpdate = false;
     },
+    openInput() {
+      this.$refs.fileInput.click();
+    },
+    uploadFile(event) {
+      const selectedFiles = event.target.files;
+      const file = selectedFiles[0];
+      if (!file.type.match("image.*")) {
+        return;
+      }
+      this.updateData.file = { img: file, desc: "" };
+      const reader = new FileReader();
+      reader.onload = (event) => (this.fileUrl = event.target.result);
+      reader.readAsDataURL(file);
+    },
+    discardAddImg() {
+      this.updateData.file = null;
+      this.$refs.fileInput.value = null;
+    },
+    async addNewImg(desc) {
+      // Create the file metadata
+      /** @type {any} */
+      const metadata = {
+        contentType: "image",
+      };
+      let imageName = store.currentUser.name + "-image-" + Date.now() + ".png";
+      const storageRef = ref(
+        storage,
+        store.currentUser.name + `(${store.currentUser.uid})/` + imageName
+      );
+      const uploadImg = uploadBytesResumable(
+        storageRef,
+        this.updateData.file.img,
+        metadata
+      );
+
+      // Listen for state changes, errors, and completion of the upload.
+
+      uploadImg.on(
+        "state_changed",
+        (snapshot) => {
+          // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
+          }
+        },
+        (error) => {
+          // A full list of error codes is available at
+          // https://firebase.google.com/docs/storage/web/handle-errors
+          switch (error.code) {
+            case "storage/unauthorized":
+              // User doesn't have permission to access the object
+              break;
+            case "storage/canceled":
+              // User canceled the upload
+              break;
+
+            // ...
+
+            case "storage/unknown":
+              // Unknown error occurred, inspect error.serverResponse
+              break;
+          }
+        },
+
+        async () => {
+          // Upload completed successfully, now we can get the download URL
+          const imgUrl = await getDownloadURL(uploadImg.snapshot.ref);
+          const image = { url: imgUrl, desc: desc };
+          store.currentUser.images.unshift(image);
+          await updateDoc(doc(db, "accounts", store.currentUser.uid), {
+            images: store.currentUser.images,
+          });
+          this.updateData.file = null;
+          this.$refs.fileInput.value = null;
+        }
+      );
+    },
+
+    async deleteImg() {
+      this.descUpdate = false;
+      store.currentUser.images.splice(this.deleteIndex, 1);
+      await updateDoc(doc(db, "accounts", store.currentUser.uid), {
+        images: store.currentUser.images,
+      });
+      this.deletePopUpVisible = false;
+    },
+    
+    async updateDesc(image) {
+      //
+    }
   },
 
   components: {
     IconLibrary,
     carousel,
     carouselSlide,
+    newImgModal,
+    deletePopUp,
   },
 };
 </script>
@@ -508,16 +686,6 @@ export default {
       text-align: justify;
     }
 
-    .editBtn {
-      background: none;
-      border: none;
-      outline: none;
-      cursor: pointer;
-      margin-left: 2px;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
     textarea {
       padding: 12px;
       border: none;
@@ -539,6 +707,11 @@ export default {
       cursor: pointer;
       display: block;
       margin-top: 5px;
+      transition: 0.2s ease-in;
+    }
+
+    .discardBioBtn:hover {
+      transform: scale(1.1);
     }
 
     .updateBioBtn {
@@ -549,6 +722,10 @@ export default {
       cursor: pointer;
       display: block;
       margin-top: 5px;
+      transition: 0.2s ease-in;
+    }
+    .updateBioBtn:hover {
+      transform: scale(1.1);
     }
   }
 
@@ -619,6 +796,77 @@ export default {
   }
   100% {
     opacity: 1;
+  }
+}
+
+.editBtn {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  margin-left: 2px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.deleteImgBtn {
+  margin-left: auto;
+  cursor: pointer;
+  height: 32px;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+.discardDescBtn {
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  right: 60px;
+  cursor: pointer;
+  display: block;
+  margin-top: 4px;
+  transition: 0.2s ease-in;
+}
+
+.updateDescBtn {
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  right: 30px;
+  cursor: pointer;
+  display: block;
+  margin-top: 4px;
+  transition: 0.2s ease-in;
+}
+
+.discardDescBtn:hover, .updateDescBtn:hover {
+  transform: scale(1.1)
+}
+
+.deletePopUp-enter {
+  opacity: 0;
+}
+.deletePopUp-leave-active {
+  opacity: 0;
+  transition: all 0.5s ease;
+  transition-delay: 0.3s;
+}
+.deletePopUp-enter-active {
+  animation: bounce-in-delete 0.5s;
+}
+.deletePopUp-leave-active {
+  animation: bounce-in-delete 0.5s reverse;
+}
+@keyframes bounce-in-delete {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 </style>

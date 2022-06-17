@@ -803,6 +803,7 @@ export default {
         flex-wrap: wrap;
         gap: 10px;
         margin: 0 30px;
+        margin-bottom: 50px;
 
         @include breakpoint {
           margin: 0 15px 10px 15px;
@@ -820,11 +821,9 @@ export default {
       p {
         font-size: 18px;
         line-height: 1.5;
-        margin-top: 50px;
         padding: 0px 30px;
 
         @include breakpoint {
-          margin: 0;
           padding: 0px 15px 15px 30px;
           font-size: 16px;
         }
