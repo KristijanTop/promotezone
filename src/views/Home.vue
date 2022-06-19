@@ -54,6 +54,7 @@
                     {{ cardData.name }}
                   </h4>
                 </router-link>
+                <more-dropdown :profile="cardData" />
               </div>
               <img class="image" :src="image.url" />
               <div class="img-slide__content">
@@ -73,6 +74,7 @@
                       {{ cardData.name }}
                     </h3>
                   </router-link>
+                  <more-dropdown :profile="cardData" />
                 </div>
                 <span class="img-slide__content__location"
                   > {{ cardData.city }}, {{ cardData.country }}
@@ -101,6 +103,7 @@ import profileCard from "@/components/profileCard.vue";
 import filterDropdown from "@/components/filterDropdown.vue";
 import carousel from "@/components/carousel.vue";
 import carouselSlide from "@/components/carouselSlide.vue";
+import moreDropdown from "@/components/moreDropdown.vue";
 import store from "@/store";
 
 export default {
@@ -124,6 +127,7 @@ export default {
     filterDropdown,
     carousel,
     carouselSlide,
+    moreDropdown,
   },
 
   computed: {
@@ -158,7 +162,6 @@ export default {
   },
 
   methods: {
-    
     next() {
       if (this.visibleImage >= this.imagesLength - 1) {
         this.visibleImage = 0;
@@ -219,6 +222,9 @@ export default {
 
   .img-slide__content__heading,
   .img-slide__heading-mobile {
+    display: flex;
+    justify-content: space-between;
+
     a {
       text-decoration: none;
       color: color(text-color);

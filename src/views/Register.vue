@@ -1101,6 +1101,7 @@ export default {
           linkedIn: this.registration.socialLinks.linkedIn,
           categories: this.registration.categories,
           bio: this.registration.bio,
+          collaborators: []
         });
 
         // Create the file metadata

@@ -21,7 +21,7 @@
         ><span></span>
         <div class="sidebar__links__link">Messages</div></router-link
       >
-      <router-link to="#"
+      <router-link to="MyCollaborators"
         ><span></span>
         <div class="sidebar__links__link">My Collaborators</div></router-link
       >

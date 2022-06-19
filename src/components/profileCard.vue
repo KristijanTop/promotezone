@@ -4,9 +4,14 @@
       <router-link
         :to="{ name: 'Profile', params: { profileName: card.name } }"
       >
-        <img :src="card.profileImg" @click="store.profileData = card" />
+        <img
+          :src="card.profileImg"
+          @click="store.profileData = card"
+          class="profileImg"
+        />
         <span @click="store.profileData = card">{{ card.name }}</span>
       </router-link>
+      <more-dropdown :profile="card" />
     </div>
     <div class="card__img">
       <img :src="card.images[0].url" @click="openCarousel()" />
@@ -21,6 +26,7 @@
 </template>
 
 <script>
+import moreDropdown from "@/components/moreDropdown.vue";
 import store from "@/store";
 
 export default {
@@ -30,6 +36,10 @@ export default {
     return {
       store,
     };
+  },
+
+  components: {
+    moreDropdown,
   },
 
   methods: {
@@ -56,6 +66,8 @@ export default {
 
   &__header {
     padding: 12px;
+    display: flex;
+    justify-content: space-between;
 
     a {
       text-decoration: none;
@@ -63,7 +75,7 @@ export default {
       display: inline-block;
     }
 
-    img {
+    .profileImg {
       height: 30px;
       width: 30px;
       border-radius: 50%;

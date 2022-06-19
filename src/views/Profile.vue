@@ -2,52 +2,55 @@
   <div class="page">
     <div class="profile">
       <div class="profile__heading">
-        <div class="profile__heading__img">
-          <img :src="store.profileData.profileImg" />
+        <div class="profile__heading__content">
+          <div class="profile__heading__content__img">
+            <img :src="store.profileData.profileImg" />
+          </div>
+          <div class="profile__heading__content__text">
+            <h2>{{ store.profileData.name }}</h2>
+            <h4>
+               {{ store.profileData.city }}, {{ store.profileData.country }}
+            </h4>
+          </div>
+          <div class="profile__heading__content__icons">
+            <a
+              :href="store.profileData.instagram"
+              target="_blank"
+              v-if="store.profileData.instagram"
+            >
+              <icon-library name="instagram" />
+            </a>
+            <a
+              :href="store.profileData.facebook"
+              target="_blank"
+              v-if="store.profileData.facebook"
+            >
+              <icon-library name="facebook" />
+            </a>
+            <a
+              :href="store.profileData.tiktok"
+              target="_blank"
+              v-if="store.profileData.tiktok"
+            >
+              <icon-library name="tiktok" />
+            </a>
+            <a
+              :href="store.profileData.youtube"
+              target="_blank"
+              v-if="store.profileData.youtube"
+            >
+              <icon-library name="youtube" />
+            </a>
+            <a
+              :href="store.profileData.linkedIn"
+              target="_blank"
+              v-if="store.profileData.linkedIn"
+            >
+              <icon-library name="linkedin" />
+            </a>
+          </div>
         </div>
-        <div class="profile__heading__text">
-          <h2>{{ store.profileData.name }}</h2>
-          <h4>
-             {{ store.profileData.city }}, {{ store.profileData.country }}
-          </h4>
-        </div>
-        <div class="profile__heading__icons">
-          <a
-            :href="store.profileData.instagram"
-            target="_blank"
-            v-if="store.profileData.instagram"
-          >
-            <icon-library name="instagram" />
-          </a>
-          <a
-            :href="store.profileData.facebook"
-            target="_blank"
-            v-if="store.profileData.facebook"
-          >
-            <icon-library name="facebook" />
-          </a>
-          <a
-            :href="store.profileData.tiktok"
-            target="_blank"
-            v-if="store.profileData.tiktok"
-          >
-            <icon-library name="tiktok" />
-          </a>
-          <a
-            :href="store.profileData.youtube"
-            target="_blank"
-            v-if="store.profileData.youtube"
-          >
-            <icon-library name="youtube" />
-          </a>
-          <a
-            :href="store.profileData.linkedIn"
-            target="_blank"
-            v-if="store.profileData.linkedIn"
-          >
-            <icon-library name="linkedin" />
-          </a>
-        </div>
+        <more-dropdown :profile="store.profileData" />
       </div>
 
       <div class="profile__tags">
@@ -95,14 +98,20 @@
         >
           <div class="img-slide">
             <div class="img-slide__heading-mobile">
-              <img class="profileImg" :src="store.profileData.profileImg" />
-              <h4>{{ store.profileData.name }}</h4>
+              <div class="img-slide__heading-mobile__text">
+                <img class="profileImg" :src="store.profileData.profileImg" />
+                <h4>{{ store.profileData.name }}</h4>
+              </div>
+              <more-dropdown :profile="store.profileData" />
             </div>
             <img class="image" :src="image.url" />
             <div class="img-slide__content">
               <div class="img-slide__content__heading">
-                <img class="profileImg" :src="store.profileData.profileImg" />
-                <h3>{{ store.profileData.name }}</h3>
+                <div class="img-slide__content__heading__text">
+                  <img class="profileImg" :src="store.profileData.profileImg" />
+                  <h3>{{ store.profileData.name }}</h3>
+                </div>
+                <more-dropdown :profile="store.profileData" />
               </div>
               <span class="img-slide__content__location"
                 > {{ store.profileData.city }},
@@ -130,6 +139,7 @@ import store from "@/store";
 import IconLibrary from "@/components/IconLibrary.vue";
 import carousel from "@/components/carousel.vue";
 import carouselSlide from "@/components/carouselSlide.vue";
+import moreDropdown from "@/components/moreDropdown.vue";
 
 export default {
   name: "MyProfile",
@@ -142,7 +152,7 @@ export default {
   },
 
   mounted() {
-      console.log("ovo je data" + store.profileData)
+    console.log("ovo je data" + store.profileData);
   },
 
   beforeDestroy() {
@@ -176,6 +186,7 @@ export default {
     IconLibrary,
     carousel,
     carouselSlide,
+    moreDropdown,
   },
 };
 </script>
@@ -201,30 +212,36 @@ export default {
 
   &__heading {
     display: flex;
-    gap: 30px;
+    justify-content: space-between;
+    place-items: center;
 
-    &__img {
-      height: 90px;
-      width: 90px;
-      border-radius: 50%;
-      overflow: hidden;
-      img {
-        width: 100%;
+    &__content {
+      display: flex;
+      gap: 30px;
+
+      &__img {
+        height: 90px;
+        width: 90px;
+        border-radius: 50%;
+        overflow: hidden;
+        img {
+          width: 100%;
+        }
       }
-    }
 
-    &__text {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-evenly;
-    }
+      &__text {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+      }
 
-    &__icons {
-      display: flex;
-      flex-wrap: wrap;
-      margin-bottom: auto;
-      padding-top: 15px;
-      gap: 15px;
+      &__icons {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: auto;
+        padding-top: 15px;
+        gap: 15px;
+      }
     }
   }
 
@@ -271,6 +288,17 @@ export default {
       border-radius: 5px;
       cursor: pointer;
     }
+  }
+}
+.img-slide__content__heading,
+.img-slide__heading-mobile {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  .img-slide__content__heading__text, .img-slide__heading-mobile__text {
+    display: flex;
+    place-items: center;
   }
 }
 </style>

@@ -117,8 +117,10 @@
             <span>My Collaborators</span>
           </li>
           <li>
-            <span class="icon"></span>
-            <span>Settings</span>
+            <router-link to="Settings">
+              <span class="icon" @click="profileDropdownVisible = false"></span>
+              <span @click="profileDropdownVisible = false">Settings</span>
+            </router-link>
           </li>
           <li class="logout">
             <div
@@ -134,8 +136,12 @@
         </ul>
       </div>
 
-      <div class="nav__searchDropdownMobile" v-if="searchDropdownMobileVisible" ref="searchDropdownMobile">
-        <input type="text" placeholder="Search" v-model="searchTerm"/>
+      <div
+        class="nav__searchDropdownMobile"
+        v-if="searchDropdownMobileVisible"
+        ref="searchDropdownMobile"
+      >
+        <input type="text" placeholder="Search" v-model="searchTerm" />
         <img
           src="@/assets/x.svg"
           class="x-icon"
@@ -388,7 +394,7 @@ export default {
   border-bottom: 1px solid color(border);
   position: fixed;
   width: 100%;
-  z-index: 1;
+  z-index: 10;
 
   &__logo {
     min-width: 300px;
@@ -518,7 +524,7 @@ export default {
     display: none;
 
     @include breakpoint {
-    display: block;
+      display: block;
     }
 
     input {
