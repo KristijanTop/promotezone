@@ -28,7 +28,7 @@
             My Collaborators
           </div></router-link
         >
-        <router-link to="#"
+        <router-link to="Settings"
           ><span></span>
           <div class="modal__sidebar__links__link">Settings</div></router-link
         >

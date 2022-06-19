@@ -175,7 +175,7 @@
       />
     </transition>
 
-    <transition name="deletePopUp">
+    <transition name="popUp">
       <delete-pop-up
         v-if="deletePopUpVisible"
         @close="deletePopUpVisible = false"
@@ -183,11 +183,22 @@
       />
     </transition>
 
+    <loading-new-img-modal v-if="loading" />
+
     <transition name="carousel">
       <carousel
-        @next="next(); descUpdate = false"
-        @prev="prev(); descUpdate = false"
-        @close="carouselVisible = false; descUpdate = false"
+        @next="
+          next();
+          descUpdate = false;
+        "
+        @prev="
+          prev();
+          descUpdate = false;
+        "
+        @close="
+          carouselVisible = false;
+          descUpdate = false;
+        "
         v-if="carouselVisible"
       >
         <carousel-slide
@@ -244,7 +255,7 @@
                   class="editBtn"
                   @click="
                     descUpdate = true;
-                    updateData.desc = image.desc;
+                    updateData.image = image;
                   "
                 >
                   <img src="@/assets/edit.svg" />
@@ -260,12 +271,12 @@
                 src="@/assets/check.svg"
                 class="updateDescBtn"
                 v-if="descUpdate"
-                @click="updateDesc(image)"
+                @click="updateDesc(index)"
               />
               <textarea
                 class="enterDesc"
                 placeholder="Enter a description"
-                v-model="updateData.desc"
+                v-model="updateData.image.desc"
                 v-if="descUpdate"
               />
             </div>
@@ -283,6 +294,7 @@ import carousel from "@/components/carousel.vue";
 import carouselSlide from "@/components/carouselSlide.vue";
 import newImgModal from "@/components/newImgModal.vue";
 import deletePopUp from "@/components/deletePopUp.vue";
+import loadingNewImgModal from "@/components/loadingNewImgModal.vue";
 import {
   db,
   doc,
@@ -307,11 +319,12 @@ export default {
         profileImgReference: null,
         bio: store.currentUser.bio,
         file: null,
-        desc: null,
+        image: null,
       },
       fileUrl: null,
       deletePopUpVisible: false,
       deleteIndex: null,
+      loading: false,
     };
   },
 
@@ -469,6 +482,8 @@ export default {
         metadata
       );
 
+      this.loading = true;
+
       // Listen for state changes, errors, and completion of the upload.
 
       uploadImg.on(
@@ -516,6 +531,7 @@ export default {
           });
           this.updateData.file = null;
           this.$refs.fileInput.value = null;
+          this.loading = false;
         }
       );
     },
@@ -527,11 +543,21 @@ export default {
         images: store.currentUser.images,
       });
       this.deletePopUpVisible = false;
+      if (this.visibleImage >= this.imagesLength - 1) {
+        this.visibleImage = 0;
+      }
+      if (this.imagesLength < 1) {
+        this.carouselVisible = false;
+      }
     },
-    
-    async updateDesc(image) {
-      //
-    }
+
+    async updateDesc(index) {
+      store.currentUser.images.splice(index, 1, this.updateData.image);
+      await updateDoc(doc(db, "accounts", store.currentUser.uid), {
+        images: store.currentUser.images,
+      });
+      this.descUpdate = false;
+    },
   },
 
   components: {
@@ -540,16 +566,13 @@ export default {
     carouselSlide,
     newImgModal,
     deletePopUp,
+    loadingNewImgModal,
   },
 };
 </script>
 
 <style lang="scss">
 @import "@/_shared.scss";
-
-.page {
-  width: 100vw;
-}
 
 .myProfile {
   margin-top: 80px;
@@ -697,6 +720,7 @@ export default {
       line-height: 1.5;
       font-size: 16px;
       text-align: justify;
+      outline: none;
     }
 
     .discardBioBtn {
@@ -761,35 +785,6 @@ export default {
   }
 }
 
-.spinner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 70px;
-  width: 70px;
-  margin-left: -35px;
-  margin-top: -35px;
-  -webkit-animation: spin 1s linear infinite;
-  animation: spin 1s linear infinite;
-  border: 3px solid #ddd;
-  border-top: 3px solid color(primary);
-  border-radius: 50%;
-}
-
-@-webkit-keyframes spin {
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes spin {
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
 @keyframes fadeIn {
   0% {
     opacity: 0;
@@ -838,35 +833,5 @@ export default {
   display: block;
   margin-top: 4px;
   transition: 0.2s ease-in;
-}
-
-.discardDescBtn:hover, .updateDescBtn:hover {
-  transform: scale(1.1)
-}
-
-.deletePopUp-enter {
-  opacity: 0;
-}
-.deletePopUp-leave-active {
-  opacity: 0;
-  transition: all 0.5s ease;
-  transition-delay: 0.3s;
-}
-.deletePopUp-enter-active {
-  animation: bounce-in-delete 0.5s;
-}
-.deletePopUp-leave-active {
-  animation: bounce-in-delete 0.5s reverse;
-}
-@keyframes bounce-in-delete {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.07);
-  }
-  100% {
-    transform: scale(1);
-  }
 }
 </style>

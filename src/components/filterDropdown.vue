@@ -569,6 +569,7 @@ export default {
     background-color: color(input);
     border: none;
     border-radius: 10px;
+    outline: none;
   }
   .primary-button {
     width: 40%;

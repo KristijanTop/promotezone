@@ -680,7 +680,9 @@ export default {
         margin-top: 10px;
         padding: 15px 25px;
 
-        span {
+        div {
+          display: flex;
+          place-items: center;
           cursor: pointer;
         }
       }
@@ -691,6 +693,10 @@ export default {
 .flex {
   display: flex;
   min-height: 100vh;
+}
+
+.page {
+  width: 100vw;
 }
 
 ::-webkit-scrollbar {
@@ -898,6 +904,66 @@ export default {
   }
   50% {
     transform: scale(1.01);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 70px;
+  width: 70px;
+  margin-left: -35px;
+  margin-top: -35px;
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+  border: 3px solid #ddd;
+  border-top: 3px solid color(primary);
+  border-radius: 50%;
+}
+
+@-webkit-keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.discardDescBtn:hover,
+.updateDescBtn:hover {
+  transform: scale(1.1);
+}
+
+.popUp-enter {
+  opacity: 0;
+}
+.popUp-leave-active {
+  opacity: 0;
+  transition: all 0.5s ease;
+  transition-delay: 0.3s;
+}
+.popUp-enter-active {
+  animation: bounce-in-delete 0.5s;
+}
+.popUp-leave-active {
+  animation: bounce-in-delete 0.5s reverse;
+}
+@keyframes bounce-in-delete {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
   }
   100% {
     transform: scale(1);

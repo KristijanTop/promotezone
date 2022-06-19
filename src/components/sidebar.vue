@@ -25,7 +25,7 @@
         ><span></span>
         <div class="sidebar__links__link">My Collaborators</div></router-link
       >
-      <router-link to="#"
+      <router-link to="Settings"
         ><span></span>
         <div class="sidebar__links__link">Settings</div></router-link
       >

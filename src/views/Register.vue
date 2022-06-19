@@ -112,7 +112,7 @@
             :style="[
               msg.name
                 ? { outline: '2px solid rgb(207, 49, 49)' }
-                : { outline: 'none' },
+                : {},
             ]"
           />
           <p class="msg" v-if="msg.name">{{ msg.name }}</p>
@@ -125,7 +125,7 @@
             :style="[
               msg.name
                 ? { outline: '2px solid rgb(207, 49, 49)' }
-                : { outline: 'none' },
+                : {},
             ]"
           />
           <p class="msg" v-if="msg.name">{{ msg.name }}</p>
@@ -139,7 +139,7 @@
             :style="[
               msg.email
                 ? { outline: '2px solid rgb(207, 49, 49)' }
-                : { outline: 'none' },
+                : {},
             ]"
           />
           <p class="msg" v-if="msg.email">{{ msg.email }}</p>
@@ -153,7 +153,7 @@
             :style="[
               msg.password
                 ? { outline: '2px solid rgb(207, 49, 49)' }
-                : { outline: 'none' },
+                : {},
             ]"
           />
           <p class="msg" v-if="msg.password">{{ msg.password }}</p>
@@ -179,7 +179,7 @@
             :style="[
               msg.repeatPassword
                 ? { outline: '2px solid rgb(207, 49, 49)' }
-                : { outline: 'none' },
+                : {},
             ]"
           />
           <p class="msg" v-if="msg.repeatPassword">{{ msg.repeatPassword }}</p>
@@ -465,7 +465,7 @@
             :style="[
               msg.city
                 ? { outline: '2px solid rgb(207, 49, 49)' }
-                : { outline: 'none' },
+                : {},
             ]"
           />
           <p class="msg" v-if="msg.city">{{ msg.city }}</p>
@@ -1045,18 +1045,24 @@ export default {
         this.msg["repeatPassword"] = "Password doesn't match";
         this.step = 2;
         valid = false;
+      } else {
+        this.msg["repeatPassword"] = "";
       }
 
       if (!this.registration.name) {
         this.msg["name"] = "This field cannot be empty";
         this.step = 2;
         valid = false;
+      } else {
+        this.msg["name"] = "";
       }
 
       if (!this.registration.city) {
         this.msg["city"] = "This field cannot be empty";
         this.step = 2;
         valid = false;
+      } else {
+        this.msg["city"] = "";
       }
 
       if (this.registration.categories.length < 1) {
@@ -1067,6 +1073,8 @@ export default {
         } else {
           this.step = 3;
         }
+      } else {
+        this.msg["categories"] = "";
       }
 
       store.loadingTime = this.registration.files.length * 3000;
@@ -1413,6 +1421,7 @@ export default {
           background-color: color(input);
           width: 100%;
           min-width: 268px;
+          outline: none;
         }
       }
 
@@ -1594,6 +1603,7 @@ export default {
         font-family: Arial, Helvetica, sans-serif;
         line-height: 1.5;
         margin-bottom: 20px;
+        outline: none;
       }
 
       &__gallery {
@@ -1688,35 +1698,6 @@ export default {
 
   svg.icon-remove:hover {
     transform: scale(1.1);
-  }
-}
-
-.spinner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 70px;
-  width: 70px;
-  margin-left: -35px;
-  margin-top: -35px;
-  -webkit-animation: spin 1s linear infinite;
-  animation: spin 1s linear infinite;
-  border: 3px solid #ddd;
-  border-top: 3px solid color(primary);
-  border-radius: 50%;
-}
-
-@-webkit-keyframes spin {
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes spin {
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
   }
 }
 

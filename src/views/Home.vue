@@ -202,7 +202,7 @@ export default {
 
   &__message {
     margin-top: 50px;
-    width: 496px;
+    width: 500px;
     max-width: 90vw;
   }
 
