@@ -772,7 +772,7 @@ export default {
 
   .primary-button {
     display: block;
-    margin: 40px auto 40px auto;
+    margin: 75px auto 40px auto;
   }
 
   .msg {

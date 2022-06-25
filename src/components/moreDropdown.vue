@@ -3,7 +3,7 @@
     <img src="@/assets/more.svg" class="more-icon" />
     <div class="moreDropdown__content">
       <ul>
-        <li>Message</li>
+        <li @click="messageUser()">Message</li>
         <li @click="addToMyCollaborators()" v-if="!collabBtn">
           Add to collaborators
         </li>
@@ -17,7 +17,8 @@
 
 <script>
 import store from "@/store";
-import { db, doc, updateDoc, arrayUnion } from "@/firebase";
+import router from "@/router";
+import { db, doc, updateDoc, arrayUnion, collection, addDoc } from "@/firebase";
 
 export default {
   name: "moreDropdown",
@@ -42,6 +43,29 @@ export default {
         collaborators: newCollaborators,
       });
       store.currentUser.collaborators = newCollaborators;
+    },
+    async messageUser() {
+      let i;
+      if (!store.currentUser.chatedWith.includes(this.profile.id)) {
+        await addDoc(collection(db, "chat"), {
+          messages: [],
+          users: [store.currentUser.uid, this.profile.id],
+        });
+        await updateDoc(doc(db, "accounts", store.currentUser.uid), {
+          chatedWith: arrayUnion(this.profile.id),
+        });
+        await updateDoc(doc(db, "accounts", this.profile.id), {
+          chatedWith: arrayUnion(store.currentUser.uid),
+        });
+        store.currentUser.chatedWith.push(this.profile.id);
+      }
+      store.chat.forEach((element, index) => {
+        if (element.chatedWith.id === this.profile.id) {
+          i = index;
+        }
+      });
+      store.visibleChat = i;
+      router.push({ name: "Messages" });
     },
   },
 

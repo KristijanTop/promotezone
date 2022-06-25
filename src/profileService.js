@@ -29,7 +29,8 @@ async getProfiles() {
           profileImg: data.profileImg,
           tiktok: data.tiktok,
           youtube: data.youtube,
-          collaborators: data.collaborators
+          collaborators: data.collaborators,
+          chatedWith: data.chatedWith
         });
       });
     } else {

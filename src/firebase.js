@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut  } from 'firebase/auth';
-import { getFirestore, doc, collection, getDocs, updateDoc, setDoc, getDoc, arrayUnion, orderBy, query, where } from "firebase/firestore";
+import { getFirestore, doc, collection, getDocs, updateDoc, setDoc, getDoc, arrayUnion, orderBy, query, where, addDoc, onSnapshot } from "firebase/firestore";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL  } from "firebase/storage";
 
 
@@ -32,6 +32,7 @@ export {
     getDoc,
     updateDoc,
     setDoc,
+    addDoc,
     storage,
     ref,
     uploadBytesResumable,
@@ -40,4 +41,5 @@ export {
     orderBy,
     query,
     where,
+    onSnapshot
 }

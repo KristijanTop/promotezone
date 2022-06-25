@@ -202,6 +202,7 @@
 import IconLibrary from "@/components/IconLibrary.vue";
 import store from "@/store";
 import profileService from "@/profileService";
+import messagesService from "@/messagesService";
 import { auth, onAuthStateChanged, doc, getDoc, db, signOut } from "@/firebase";
 import router from "@/router";
 import sidebar from "@/components/sidebar.vue";
@@ -218,6 +219,7 @@ onAuthStateChanged(auth, async (user) => {
         if (docSnap.exists()) {
           store.currentUser = docSnap.data();
           profileService.getProfiles();
+          messagesService.getMessages();
         } else {
           // doc.data() will be undefined in this case
           console.log("No such document!");
@@ -237,6 +239,7 @@ onAuthStateChanged(auth, async (user) => {
       if (docSnap.exists()) {
         store.currentUser = docSnap.data();
         profileService.getProfiles();
+        messagesService.getMessages();
       } else {
         // doc.data() will be undefined in this case
         console.log("No such document!");

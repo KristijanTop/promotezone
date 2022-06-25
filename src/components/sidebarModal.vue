@@ -18,7 +18,7 @@
           ><span></span>
           <div class="modal__sidebar__links__link">Home</div></router-link
         >
-        <router-link to="#"
+        <router-link to="Messages"
           ><span></span>
           <div class="modal__sidebar__links__link">Messages</div></router-link
         >
