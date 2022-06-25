@@ -712,7 +712,7 @@ export default {
   width: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: color(input);
+  background: #e4e4e4;
 }
 ::-webkit-scrollbar-thumb {
   background: color(secondary);

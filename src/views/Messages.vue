@@ -41,10 +41,48 @@
             <img :src="convo.chatedWith.profileImg" />
             <h3>{{ convo.chatedWith.name }}</h3>
           </div>
-          <div class="messages__container__messageBox__messageArea"></div>
+          <div class="messages__container__messageBox__messageArea">
+            <div
+              class="
+                messages__container__messageBox__messageArea__messageContainer
+              "
+              v-for="message in convo.messages"
+              :key="message.id"
+            >
+              <div
+                class="
+                  messages__container__messageBox__messageArea__messageContainer__message
+                "
+                :style="[
+                  message.id == store.currentUser.uid
+                    ? { justifyContent: 'right', flexDirection: 'row-reverse' }
+                    : {},
+                ]"
+              >
+                <img
+                  :src="
+                    message.id == store.currentUser.uid
+                      ? store.currentUser.profileImg
+                      : convo.chatedWith.profileImg
+                  "
+                />
+                <p
+                  :style="[
+                    message.id == store.currentUser.uid
+                      ? { background: '#5656d8', color: '#fff' }
+                      : { background: '#f2f2f2' },
+                  ]"
+                >
+                  {{ message.value }}
+                </p>
+              </div>
+            </div>
+          </div>
           <div class="messages__container__messageBox__newMessage">
-            <textarea placeholder="Your message..." />
-            <button class="primary-button">Send</button>
+            <textarea placeholder="Your message..." v-model="message" />
+            <button class="primary-button" @click="sendMessage(convo)">
+              Send
+            </button>
           </div>
         </div>
       </div>
@@ -55,12 +93,14 @@
 <script>
 import store from "@/store";
 import IconLibrary from "@/components/IconLibrary.vue";
+import { db, doc, updateDoc, arrayUnion } from "@/firebase";
 
 export default {
   name: "Messages",
   data() {
     return {
       store,
+      message: null,
     };
   },
   components: {
@@ -68,7 +108,29 @@ export default {
   },
 
   mounted() {
-    console.log(store.chat);
+    this.scrollChatToBottom();
+  },
+
+  methods: {
+    scrollChatToBottom() {
+      let messageArea = document.querySelector(
+        ".messages__container__messageBox__messageArea"
+      );
+      messageArea.scrollTop = messageArea.scrollHeight;
+    },
+    async sendMessage(convo) {
+      if (this.message) {
+        let message = {
+          value: this.message,
+          id: store.currentUser.uid,
+        };
+        await updateDoc(doc(db, "chat", convo.id), {
+          messages: arrayUnion(message),
+        });
+        this.message = null;
+        this.scrollChatToBottom();
+      }
+    },
   },
 };
 </script>
@@ -104,7 +166,7 @@ export default {
       &__inputBox {
         position: relative;
         border-bottom: 1px solid color(border);
-        padding: 10px;
+        padding: 12px;
 
         input {
           padding: 12px;
@@ -120,7 +182,7 @@ export default {
         &__searchIcon {
           position: absolute;
           right: 22px;
-          top: 18px;
+          top: 19px;
         }
       }
 
@@ -128,7 +190,7 @@ export default {
         &__message {
           display: flex;
           place-items: center;
-          padding: 10px;
+          padding: 12px;
 
           &__profileImg {
             border-radius: 50%;
@@ -145,7 +207,7 @@ export default {
 
       &__name {
         display: flex;
-        padding: 10px;
+        padding: 12px;
         padding-left: 20px;
         place-items: center;
         border-bottom: 1px solid color(border);
@@ -159,13 +221,37 @@ export default {
       }
 
       &__messageArea {
-        height: 75%;
+        height: 445.5px;
+        overflow: auto;
+
+        &__messageContainer {
+          margin: 20px 0;
+
+          &__message {
+            display: flex;
+
+            img {
+              height: 38px;
+              width: 38px;
+              border-radius: 50%;
+              margin: 0 20px;
+            }
+
+            p {
+              border-radius: 15px;
+              padding: 12px;
+              max-width: 415px;
+              line-height: 1.2;
+            }
+          }
+        }
       }
 
       &__newMessage {
         border-top: 1px solid color(border);
         display: flex;
         justify-content: space-between;
+        background: #fff;
 
         textarea {
           padding: 12px;
