@@ -30,61 +30,12 @@
             </div>
           </div>
         </div>
-        <div
-          class="messages__container__messageBox"
+        <message-box
           v-for="(convo, index) in store.chat"
           :key="convo.chatedWith.id"
           :index="index"
-          v-show="store.visibleChat === index"
-        >
-          <div class="messages__container__messageBox__name">
-            <img :src="convo.chatedWith.profileImg" />
-            <h3>{{ convo.chatedWith.name }}</h3>
-          </div>
-          <div class="messages__container__messageBox__messageArea">
-            <div
-              class="
-                messages__container__messageBox__messageArea__messageContainer
-              "
-              v-for="message in convo.messages"
-              :key="message.id"
-            >
-              <div
-                class="
-                  messages__container__messageBox__messageArea__messageContainer__message
-                "
-                :style="[
-                  message.id == store.currentUser.uid
-                    ? { justifyContent: 'right', flexDirection: 'row-reverse' }
-                    : {},
-                ]"
-              >
-                <img
-                  :src="
-                    message.id == store.currentUser.uid
-                      ? store.currentUser.profileImg
-                      : convo.chatedWith.profileImg
-                  "
-                />
-                <p
-                  :style="[
-                    message.id == store.currentUser.uid
-                      ? { background: '#5656d8', color: '#fff' }
-                      : { background: '#f2f2f2' },
-                  ]"
-                >
-                  {{ message.value }}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="messages__container__messageBox__newMessage">
-            <textarea placeholder="Your message..." v-model="message" />
-            <button class="primary-button" @click="sendMessage(convo)">
-              Send
-            </button>
-          </div>
-        </div>
+          :convo="convo"
+        />
       </div>
     </div>
   </div>
@@ -93,44 +44,18 @@
 <script>
 import store from "@/store";
 import IconLibrary from "@/components/IconLibrary.vue";
-import { db, doc, updateDoc, arrayUnion } from "@/firebase";
+import messageBox from "@/components/messageBox.vue";
 
 export default {
   name: "Messages",
   data() {
     return {
       store,
-      message: null,
     };
   },
   components: {
     IconLibrary,
-  },
-
-  mounted() {
-    this.scrollChatToBottom();
-  },
-
-  methods: {
-    scrollChatToBottom() {
-      let messageArea = document.querySelector(
-        ".messages__container__messageBox__messageArea"
-      );
-      messageArea.scrollTop = messageArea.scrollHeight;
-    },
-    async sendMessage(convo) {
-      if (this.message) {
-        let message = {
-          value: this.message,
-          id: store.currentUser.uid,
-        };
-        await updateDoc(doc(db, "chat", convo.id), {
-          messages: arrayUnion(message),
-        });
-        this.message = null;
-        this.scrollChatToBottom();
-      }
-    },
+    messageBox,
   },
 };
 </script>
@@ -198,77 +123,6 @@ export default {
             width: 38px;
             margin-right: 10px;
           }
-        }
-      }
-    }
-
-    &__messageBox {
-      width: 68%;
-
-      &__name {
-        display: flex;
-        padding: 12px;
-        padding-left: 20px;
-        place-items: center;
-        border-bottom: 1px solid color(border);
-
-        img {
-          border-radius: 50%;
-          height: 38px;
-          width: 38px;
-          margin-right: 10px;
-        }
-      }
-
-      &__messageArea {
-        height: 445.5px;
-        overflow: auto;
-
-        &__messageContainer {
-          margin: 20px 0;
-
-          &__message {
-            display: flex;
-
-            img {
-              height: 38px;
-              width: 38px;
-              border-radius: 50%;
-              margin: 0 20px;
-            }
-
-            p {
-              border-radius: 15px;
-              padding: 12px;
-              max-width: 415px;
-              line-height: 1.2;
-            }
-          }
-        }
-      }
-
-      &__newMessage {
-        border-top: 1px solid color(border);
-        display: flex;
-        justify-content: space-between;
-        background: #fff;
-
-        textarea {
-          padding: 12px;
-          border: none;
-          width: 80%;
-          outline: none;
-          font-family: "GothamBook";
-          line-height: 1.5;
-          resize: none;
-          min-height: 90px;
-        }
-
-        .primary-button {
-          display: block;
-          max-height: 40px;
-          padding: 10px 15px;
-          margin: auto;
         }
       }
     }
