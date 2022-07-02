@@ -45,11 +45,11 @@ export default {
       store.currentUser.collaborators = newCollaborators;
     },
     async messageUser() {
-      let i;
       if (!store.currentUser.chatedWith.includes(this.profile.id)) {
         await addDoc(collection(db, "chat"), {
           messages: [],
           users: [store.currentUser.uid, this.profile.id],
+          lastUpdated: Date.now()
         });
         await updateDoc(doc(db, "accounts", store.currentUser.uid), {
           chatedWith: arrayUnion(this.profile.id),
@@ -59,12 +59,13 @@ export default {
         });
         store.currentUser.chatedWith.push(this.profile.id);
       }
-      store.chat.forEach((element, index) => {
+      let visibleChat;
+      store.chat.forEach((element) => {
         if (element.chatedWith.id === this.profile.id) {
-          i = index;
+          visibleChat = element.id
         }
       });
-      store.visibleChat = i;
+      store.visibleChat = visibleChat;
       router.push({ name: "Messages" });
     },
   },

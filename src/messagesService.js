@@ -5,7 +5,8 @@ export default {
   async getMessages() {
     const q = query(
       collection(db, "chat"),
-      where("users", "array-contains", store.currentUser.uid)
+      where("users", "array-contains", store.currentUser.uid),
+      orderBy("lastUpdated", "desc")
     );
     onSnapshot(q, (querySnapshot) => {
       store.chat = [];
@@ -16,7 +17,8 @@ export default {
           store.chat.push({
             id: doc.id,
             messages: data.messages,
-            chatedWith: chatedWith[0]
+            chatedWith: chatedWith[0],
+            lastUpdated: data.lastUpdated
           })
       });
     });

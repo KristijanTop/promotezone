@@ -16,17 +16,53 @@
               v-for="(convo, index) in store.chat"
               :key="convo.chatedWith.id"
               :index="index"
+              @click="store.visibleChat = convo.id"
+              :style="[
+                store.visibleChat === convo.id ? { background: '#f2f2f2' } : {},
+              ]"
             >
               <img
                 :src="convo.chatedWith.profileImg"
                 class="
                   messages__container__sidebar__messages__message__profileImg
                 "
-                @click="store.visibleChat = index"
               />
-              <h3 @click="store.visibleChat = index">
-                {{ convo.chatedWith.name }}
-              </h3>
+              <div
+                class="messages__container__sidebar__messages__message__content"
+              >
+                <div
+                  class="
+                    messages__container__sidebar__messages__message__content__header
+                  "
+                >
+                  <span>
+                    <strong>{{ convo.chatedWith.name }}</strong>
+                  </span>
+                  <span
+                    v-if="convo.messages.length > 0"
+                    class="
+                      messages__container__sidebar__messages__message__content__header__time
+                    "
+                    >{{
+                      sentAgo(convo.messages[convo.messages.length - 1].time)
+                    }}</span
+                  >
+                </div>
+                <p
+                  v-if="convo.messages.length > 0"
+                  class="
+                    messages__container__sidebar__messages__message__content__lastMessage
+                  "
+                >
+                  {{
+                    convo.messages[convo.messages.length - 1].id ==
+                    store.currentUser.uid
+                      ? "You:"
+                      : ""
+                  }}
+                  {{ convo.messages[convo.messages.length - 1].value }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -45,17 +81,37 @@
 import store from "@/store";
 import IconLibrary from "@/components/IconLibrary.vue";
 import messageBox from "@/components/messageBox.vue";
+import moment from "moment";
 
 export default {
   name: "Messages",
   data() {
     return {
-      store,
+      store
     };
   },
   components: {
     IconLibrary,
     messageBox,
+  },
+
+  mounted() {
+    this.setFirstConvo();
+  },
+
+  methods: {
+    setFirstConvo() {
+      if (!store.visibleChat) {
+        store.visibleChat = store.chat[0].id;
+      }
+    },
+
+    sentAgo(time) {
+      if (moment(time).fromNow() == "a few seconds ago") {
+        return "now";
+      }
+      return moment(time).fromNow();
+    },
   },
 };
 </script>
@@ -85,7 +141,7 @@ export default {
     margin-bottom: 50px;
 
     &__sidebar {
-      width: 32%;
+      width: 36%;
       border-right: 1px solid color(border);
 
       &__inputBox {
@@ -116,6 +172,8 @@ export default {
           display: flex;
           place-items: center;
           padding: 12px;
+          width: 100%;
+          cursor: pointer;
 
           &__profileImg {
             border-radius: 50%;
@@ -123,6 +181,30 @@ export default {
             width: 38px;
             margin-right: 10px;
           }
+
+          &__content {
+            width: 100%;
+            &__header {
+              display: flex;
+              place-items: flex-end;
+              justify-content: space-between;
+
+              &__time {
+                color: color(secondary);
+                font-size: 11px;
+                text-align: right;
+              }
+            }
+
+            &__lastMessage {
+              margin-top: 5px;
+              color: color(secondary);
+            }
+          }
+        }
+
+        &__message:hover {
+          background: color(input);
         }
       }
     }

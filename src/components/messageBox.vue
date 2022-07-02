@@ -1,5 +1,5 @@
 <template>
-  <div class="messageBox" v-show="store.visibleChat === index">
+  <div class="messageBox" v-show="store.visibleChat === convo.id">
     <div class="messageBox__name">
       <img :src="convo.chatedWith.profileImg" />
       <h3>{{ convo.chatedWith.name }}</h3>
@@ -99,6 +99,7 @@ export default {
         };
         await updateDoc(doc(db, "chat", convo.id), {
           messages: arrayUnion(message),
+          lastUpdated: Date.now(),
         });
         this.message = null;
         this.scrollChatToBottom();
@@ -122,7 +123,7 @@ export default {
 @import "@/_shared.scss";
 
 .messageBox {
-  width: 68%;
+  width: 64%;
 
   &__name {
     display: flex;

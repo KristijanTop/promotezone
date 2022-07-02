@@ -1,7 +1,7 @@
 export default {
     currentUser: null,
     chat: [],
-    visibleChat: 0,
+    visibleChat: null,
     loadingTime: 0,
     cards: [],
     filterOptions: {
