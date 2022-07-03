@@ -1,7 +1,7 @@
 <template>
   <div class="deletePopUp">
     <div class="deletePopUp__container">
-      <h3>Are you sure you want to delete this image?</h3>
+      <h3>Are you sure you want to delete this {{ message }}?</h3>
       <div class="deletePopUp__container__footer">
         <button class="secondary-button" @click="close()">No</button>
         <button class="primary-button" @click="deleteImg()">Yes</button>
@@ -13,6 +13,7 @@
 <script>
 export default {
   name: "deletePopUp",
+  props: ["message"],
   data() {
     return {};
   },

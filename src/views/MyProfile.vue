@@ -177,6 +177,7 @@
 
     <transition name="popUp">
       <delete-pop-up
+        message="image"
         v-if="deletePopUpVisible"
         @close="deletePopUpVisible = false"
         @delete="deleteImg()"

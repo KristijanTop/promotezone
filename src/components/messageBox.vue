@@ -3,6 +3,9 @@
     <div class="messageBox__name">
       <img :src="convo.chatedWith.profileImg" />
       <h3>{{ convo.chatedWith.name }}</h3>
+      <button class="messageBox__name__deleteBtn" @click="deleteChat()">
+        <icon-library name="trash" id="trash"/>
+      </button>
     </div>
     <div class="messageBox__messageArea" ref="msgBox">
       <div
@@ -58,6 +61,7 @@
 </template>
 
 <script>
+import IconLibrary from "@/components/IconLibrary.vue";
 import store from "@/store";
 import moment from "moment";
 import { db, doc, updateDoc, arrayUnion } from "@/firebase";
@@ -70,6 +74,10 @@ export default {
       store,
       message: null,
     };
+  },
+
+  components: {
+    IconLibrary
   },
 
   mounted() {
@@ -115,6 +123,10 @@ export default {
         return moment(message.time).format("D MMMM, YYYY");
       }
     },
+
+    deleteChat() {
+      this.$emit("delete", this.convo, this.index);
+    }
   },
 };
 </script>
@@ -137,6 +149,18 @@ export default {
       height: 38px;
       width: 38px;
       margin-right: 10px;
+    }
+
+    &__deleteBtn {
+      background: none;
+      border: none;
+      outline: none;
+      margin-left: auto;
+      cursor: pointer;
+
+      #trash {
+        height: 32px;
+      }
     }
   }
 

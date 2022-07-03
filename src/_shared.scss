@@ -16,6 +16,7 @@ $breakpoint: 1250px;
 $breakpoint2: 480px;
 $breakpoint3: 900px;
 $breakpoint4: 750px;
+$breakpoint5: 600px;
 
 
 @mixin breakpoint {
@@ -38,6 +39,12 @@ $breakpoint4: 750px;
 
 @mixin breakpoint4 {
   @media (max-width: #{$breakpoint4}) {
+    @content;
+  }
+}
+
+@mixin breakpoint5 {
+  @media (max-width: #{$breakpoint5}) {
     @content;
   }
 }
