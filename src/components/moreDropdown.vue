@@ -28,6 +28,7 @@ export default {
       store,
     };
   },
+
   methods: {
     async addToMyCollaborators() {
       await updateDoc(doc(db, "accounts", store.currentUser.uid), {
@@ -66,6 +67,7 @@ export default {
         }
       });
       store.visibleChat = visibleChat;
+      store.specificChatOpened = true;
       router.push({ name: "Messages" });
     },
   },

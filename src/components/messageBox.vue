@@ -1,7 +1,8 @@
 <template>
   <div class="messageBox" v-show="store.visibleChat === convo.id">
     <div class="messageBox__name">
-      <img :src="convo.chatedWith.profileImg" />
+      <img src="@/assets/back.svg" class="messageBox__name__backBtn" v-if="width <= 945" @click="goBack()">
+      <img :src="convo.chatedWith.profileImg" class="messageBox__name__profileImg"/>
       <h3>{{ convo.chatedWith.name }}</h3>
       <button class="messageBox__name__deleteBtn" @click="deleteChat()">
         <icon-library name="trash" id="trash"/>
@@ -73,6 +74,7 @@ export default {
     return {
       store,
       message: null,
+      width: null
     };
   },
 
@@ -82,6 +84,8 @@ export default {
 
   mounted() {
     this.scrollChatToBottom();
+    this.checkScreen();
+    window.addEventListener("resize", this.checkScreen);
   },
 
   watch: {
@@ -93,6 +97,10 @@ export default {
   },
 
   methods: {
+    checkScreen(){
+      this.width = window.innerWidth;
+    },
+
     scrollChatToBottom() {
       let messageArea = this.$refs.msgBox;
       messageArea.scrollTop = messageArea.scrollHeight;
@@ -126,6 +134,10 @@ export default {
 
     deleteChat() {
       this.$emit("delete", this.convo, this.index);
+    },
+
+    goBack() {
+      this.$emit("back");
     }
   },
 };
@@ -135,16 +147,22 @@ export default {
 @import "@/_shared.scss";
 
 .messageBox {
-  width: 64%;
 
   &__name {
     display: flex;
     padding: 12px;
-    padding-left: 20px;
     place-items: center;
     border-bottom: 1px solid color(border);
 
-    img {
+    &__backBtn {
+      background: none;
+      outline: none;
+      border: none;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    &__profileImg {
       border-radius: 50%;
       height: 38px;
       width: 38px;
@@ -203,7 +221,7 @@ export default {
         p {
           border-radius: 15px;
           padding: 12px;
-          max-width: 415px;
+          max-width: 55%;
           line-height: 1.2;
         }
       }
@@ -217,9 +235,9 @@ export default {
     background: #fff;
 
     textarea {
-      padding: 12px;
+      padding: 20px;
       border: none;
-      width: 80%;
+      width: 100%;
       outline: none;
       font-family: "GothamBook";
       line-height: 1.5;
@@ -231,7 +249,7 @@ export default {
       display: block;
       max-height: 40px;
       padding: 10px 15px;
-      margin: auto;
+      margin: auto 20px auto 20px;
     }
   }
 }

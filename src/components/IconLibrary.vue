@@ -195,14 +195,6 @@ export default {
 <style lang="scss">
 @import "@/_shared.scss";
 
-.chat:hover {
-    fill: #2B3033;
-    .chat__dots {
-        stroke: #fff;
-        fill: #fff;
-    }
-}
-
 #instagram:hover, #facebook:hover, #tiktok:hover, #youtube:hover, #linkedin:hover {
   .vector {
     fill: color(primary);

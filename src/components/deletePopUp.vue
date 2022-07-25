@@ -53,6 +53,8 @@ export default {
     padding: 35px;
     border-radius: 7px;
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    max-width: 90%;
+    text-align: center;
 
     &__footer {
       display: flex;

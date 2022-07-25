@@ -75,7 +75,13 @@
         >
           <icon-library name="search"></icon-library>
         </button>
-        <icon-library name="chat" class="nav__icons__icon"></icon-library>
+        <button
+          class="nav__icons__icon nav__icons__chat"
+          @click="chatDropdownVisible = !chatDropdownVisible"
+          ref="chatDropdownToggle"
+        >
+          <icon-library name="chat" class="nav__icons__icon"></icon-library>
+        </button>
         <img
           v-if="store.currentUser.profileImg"
           :src="store.currentUser.profileImg"
@@ -90,6 +96,62 @@
           @click="profileDropdownVisible = !profileDropdownVisible"
           ref="profileDropdownToggle"
         />
+      </div>
+
+      <div
+        class="nav__chatDropdown"
+        v-if="chatDropdownVisible"
+        ref="chatDropdown"
+      >
+        <h3>Messages</h3>
+        <div class="nav__chatDropdown__messageArea">
+          <div
+            class="nav__chatDropdown__messageArea__message"
+            v-for="convo in store.chat.slice(0, 3)"
+            :key="convo.chatedWith.id"
+            @click="openChat(convo)"
+          >
+            <img :src="convo.chatedWith.profileImg" />
+            <div class="nav__chatDropdown__messageArea__message__content">
+              <div
+                class="
+                  nav__chatDropdown__messageArea__message__content__heading
+                "
+              >
+                <p
+                  class="
+                    nav__chatDropdown__messageArea__message__content__heading__name
+                  "
+                >
+                  <strong>{{ convo.chatedWith.name }}</strong>
+                </p>
+                <p
+                  v-if="convo.messages.length > 0"
+                  class="
+                    nav__chatDropdown__messageArea__message__content__heading__sentAgo
+                  "
+                >
+                  {{ sentAgo(convo.messages[convo.messages.length - 1].time) }}
+                </p>
+              </div>
+              <p
+                v-if="convo.messages.length > 0"
+                class="
+                  nav__chatDropdown__messageArea__message__content__lastMsg
+                "
+              >
+                {{
+                  convo.messages[convo.messages.length - 1].id ==
+                  store.currentUser.uid
+                    ? "You:"
+                    : ""
+                }}
+                {{ convo.messages[convo.messages.length - 1].value }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <router-link to="Messages"><p @click="chatDropdownVisible = false">See all</p></router-link>
       </div>
 
       <div
@@ -118,7 +180,9 @@
           </li>
           <li>
             <router-link to="Settings">
-              <span class="icon" @click="profileDropdownVisible = false"></span>
+              <span class="icon" @click="profileDropdownVisible = false"
+                ></span
+              >
               <span @click="profileDropdownVisible = false">Settings</span>
             </router-link>
           </li>
@@ -201,6 +265,7 @@
 <script>
 import IconLibrary from "@/components/IconLibrary.vue";
 import store from "@/store";
+import moment from "moment";
 import profileService from "@/profileService";
 import messagesService from "@/messagesService";
 import { auth, onAuthStateChanged, doc, getDoc, db, signOut } from "@/firebase";
@@ -267,6 +332,7 @@ export default {
       searchTerm: "",
       profileDropdownVisible: false,
       searchDropdownMobileVisible: false,
+      chatDropdownVisible: false,
     };
   },
 
@@ -284,6 +350,7 @@ export default {
     document.addEventListener("click", this.closeProfileDropdown);
     document.addEventListener("click", this.closeSidebarModal);
     document.addEventListener("click", this.closeSearchDropdownMobile);
+    document.addEventListener("click", this.closeChatDropdown);
   },
 
   beforeDestroy() {
@@ -312,6 +379,13 @@ export default {
         this.modalActive = false;
         this.sidebarActive = true;
       }
+    },
+
+    openChat(convo) {
+      store.visibleChat = convo.id;
+      store.specificChatOpened = true;
+      this.chatDropdownVisible = false;
+      router.push({ name: "Messages" });
     },
 
     logOut() {
@@ -348,6 +422,22 @@ export default {
       if (el !== target && !el.contains(target) && !toggle.contains(target)) {
         this.searchDropdownMobileVisible = false;
       }
+    },
+
+    closeChatDropdown(e) {
+      let el = this.$refs.chatDropdown;
+      let toggle = this.$refs.chatDropdownToggle;
+      let target = e.target;
+      if (el !== target && !el.contains(target) && !toggle.contains(target)) {
+        this.chatDropdownVisible = false;
+      }
+    },
+
+    sentAgo(time) {
+      if (moment(time).fromNow() == "a few seconds ago") {
+        return "now";
+      }
+      return moment(time).fromNow();
     },
   },
 };
@@ -635,11 +725,93 @@ export default {
       }
     }
 
+    &__chat {
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+
     .profileIcon {
       height: 30px;
       width: 30px;
       border-radius: 50%;
       cursor: pointer;
+    }
+  }
+
+  &__chatDropdown {
+    background: #fff;
+    position: absolute;
+    right: 60px;
+    top: 65px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 5px;
+
+    h3 {
+      padding: 12px;
+    }
+
+    &__messageArea {
+      border-top: 1px solid color(border);
+      border-bottom: 1px solid color(border);
+
+      &__message {
+        display: flex;
+        place-items: center;
+        padding: 12px;
+        cursor: pointer;
+        width: 100%;
+
+        &__content {
+          &__heading {
+            display: flex;
+            justify-content: space-between;
+            place-items: flex-end;
+
+            &__name {
+              width: 12ch;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+
+            &__sentAgo {
+              color: color(secondary);
+              font-size: 11px;
+              text-align: right;
+            }
+          }
+
+          &__lastMsg {
+            width: 20ch;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-top: 5px;
+            color: color(secondary);
+          }
+        }
+      }
+
+      &__message:hover {
+        background: color(input);
+      }
+    }
+
+    a {
+      text-decoration: none;
+      color: color(primary);
+      padding: 12px;
+      display: block;
+      text-align: center;
+    }
+
+    img {
+      border-radius: 50%;
+      height: 38px;
+      width: 38px;
+      margin-right: 10px;
     }
   }
 

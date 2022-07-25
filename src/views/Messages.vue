@@ -2,9 +2,14 @@
   <div class="page">
     <div class="messages">
       <h3 class="messages__title">Messages</h3>
-      <p v-if="store.chat.length < 1" class="messages__noChats">You currently have no active chats.</p>
+      <p v-if="store.chat.length < 1" class="messages__noChats">
+        You currently have no active chats.
+      </p>
       <div class="messages__container" v-if="store.chat.length > 0">
-        <div class="messages__container__sidebar">
+        <div
+          class="messages__container__sidebar"
+          v-if="store.messageListVisible"
+        >
           <div class="messages__container__sidebar__inputBox">
             <input type="text" placeholder="Search" v-model="searchTerm" />
             <icon-library
@@ -24,9 +29,11 @@
               v-for="(convo, index) in searchedChats"
               :key="convo.chatedWith.id"
               :index="index"
-              @click="store.visibleChat = convo.id"
+              @click="openChat(convo)"
               :style="[
-                store.visibleChat === convo.id ? { background: '#f2f2f2' } : {},
+                store.visibleChat === convo.id && store.width >= 945
+                  ? { background: '#f2f2f2' }
+                  : {},
               ]"
             >
               <img
@@ -43,7 +50,11 @@
                     messages__container__sidebar__messages__message__content__header
                   "
                 >
-                  <span>
+                  <span
+                    class="
+                      messages__container__sidebar__messages__message__content__header__name
+                    "
+                  >
                     <strong>{{ convo.chatedWith.name }}</strong>
                   </span>
                   <span
@@ -74,13 +85,23 @@
             </div>
           </div>
         </div>
-        <message-box
-          v-for="(convo, index) in store.chat"
-          :key="convo.chatedWith.id"
-          :index="index"
-          :convo="convo"
-          @delete="openDeletePopUp"
-        />
+        <div
+          v-if="store.messageBoxVisible"
+          class="messages__container__messageBox"
+        >
+          <message-box
+            v-for="(convo, index) in store.chat"
+            :key="convo.chatedWith.id"
+            :index="index"
+            :convo="convo"
+            @delete="openDeletePopUp"
+            @back="
+              store.messageBoxVisible = false;
+              store.messageListVisible = true;
+              store.specificChatOpened = false;
+            "
+          />
+        </div>
       </div>
     </div>
     <transition name="popUp">
@@ -113,7 +134,7 @@ export default {
       searchTerm: "",
       deletePopUpVisible: false,
       deleteChatData: null,
-      deleteChatDataIndex: null
+      deleteChatDataIndex: null,
     };
   },
   components: {
@@ -123,7 +144,9 @@ export default {
   },
 
   mounted() {
+    this.checkScreen();
     this.setFirstConvo();
+    window.addEventListener("resize", this.checkScreen);
   },
 
   computed: {
@@ -135,6 +158,32 @@ export default {
   },
 
   methods: {
+    checkScreen() {
+      store.width = window.innerWidth;
+      if (
+        store.width <= 945 &&
+        store.messageListVisible &&
+        store.specificChatOpened == false
+      ) {
+        store.messageBoxVisible = false;
+        store.messageListVisible = true;
+      } else if (store.width <= 945 && store.specificChatOpened) {
+        store.messageBoxVisible = true;
+        store.messageListVisible = false;
+      } else {
+        store.messageListVisible = true;
+        store.messageBoxVisible = true;
+      }
+    },
+
+    openChat(convo) {
+      store.visibleChat = convo.id;
+      if (store.width <= 945) {
+        store.messageBoxVisible = true;
+        store.messageListVisible = false;
+      }
+    },
+
     setFirstConvo() {
       if (!store.visibleChat) {
         store.visibleChat = this.searchedChats[0].id;
@@ -166,7 +215,7 @@ export default {
         (id) => id !== this.deleteChatData.chatedWith.id
       );
       this.deletePopUpVisible = false;
-      if(this.deleteChatDataIndex === 0) {
+      if (this.deleteChatDataIndex === 0) {
         store.visibleChat = this.searchedChats[this.deleteChatDataIndex].id;
       } else {
         store.visibleChat = this.searchedChats[this.deleteChatDataIndex - 1].id;
@@ -204,10 +253,16 @@ export default {
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     display: flex;
     margin-bottom: 50px;
+    overflow: hidden;
 
     &__sidebar {
       width: 36%;
       border-right: 1px solid color(border);
+
+      @include breakpoint5 {
+        width: 100%;
+        border: none;
+      }
 
       &__inputBox {
         position: relative;
@@ -258,6 +313,13 @@ export default {
               place-items: flex-end;
               justify-content: space-between;
 
+              &__name {
+                width: 12ch;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+
               &__time {
                 color: color(secondary);
                 font-size: 11px;
@@ -268,6 +330,10 @@ export default {
             &__lastMessage {
               margin-top: 5px;
               color: color(secondary);
+              width: 20ch;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
             }
           }
         }
@@ -275,6 +341,14 @@ export default {
         &__message:hover {
           background: color(input);
         }
+      }
+    }
+
+    &__messageBox {
+      width: 64%;
+
+      @include breakpoint5 {
+        width: 100%;
       }
     }
   }
