@@ -8,7 +8,7 @@ async getProfiles() {
       const q = query(
         collection(db, "accounts"),
         where("accType", "==", "promo"),
-        orderBy("name", "desc")
+        orderBy("name", "asc")
       );
       const querySnapshot = await getDocs(q);
       store.cards = [];
@@ -37,7 +37,7 @@ async getProfiles() {
       const q = query(
         collection(db, "accounts"),
         where("accType", "==", "business"),
-        orderBy("name", "desc")
+        orderBy("name", "asc")
       );
       const querySnapshot = await getDocs(q);
       store.cards = [];

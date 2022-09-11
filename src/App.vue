@@ -31,28 +31,24 @@
               :key="card.id"
               class="nav__search__box__results__result"
             >
-              <router-link
-                :to="{
-                  name: 'Profile',
-                  params: { profileName: card.name },
-                }"
+              <div
+                @click="
+                  store.profileData = card;
+                  searchTerm = '';
+                "
               >
-                <img
-                  :src="card.profileImg"
-                  @click="
-                    store.profileData = card;
-                    searchTerm = '';
-                  "
-                />
-                <p
-                  @click="
-                    store.profileData = card;
-                    searchTerm = '';
-                  "
+                <router-link
+                  :to="{
+                    name: 'Profile',
+                    params: { profileName: card.name },
+                  }"
                 >
-                  {{ card.name }}
-                </p>
-              </router-link>
+                  <img :src="card.profileImg" />
+                  <p>
+                    {{ card.name }}
+                  </p>
+                </router-link>
+              </div>
             </div>
           </div>
           <p class="no-result" v-if="searchedCards.length < 1">No results</p>
@@ -105,6 +101,12 @@
       >
         <h3>Messages</h3>
         <div class="nav__chatDropdown__messageArea">
+          <p
+            v-if="store.chat.length === 0"
+            class="nav__chatDropdown__messageArea__noChats"
+          >
+            You currently have no active chats.
+          </p>
           <div
             class="nav__chatDropdown__messageArea__message"
             v-for="convo in store.chat.slice(0, 3)"
@@ -151,7 +153,9 @@
             </div>
           </div>
         </div>
-        <router-link to="Messages"><p @click="chatDropdownVisible = false">See all</p></router-link>
+        <router-link to="Messages" v-if="store.chat.length !== 0"
+          ><p @click="chatDropdownVisible = false">See all</p></router-link
+        >
       </div>
 
       <div
@@ -218,28 +222,24 @@
             :key="card.id"
             class="nav__searchDropdownMobile__box__result"
           >
-            <router-link
-              :to="{
-                name: 'Profile',
-                params: { profileName: card.name },
-              }"
+            <div
+              @click="
+                store.profileData = card;
+                searchTerm = '';
+              "
             >
-              <img
-                :src="card.profileImg"
-                @click="
-                  store.profileData = card;
-                  searchTerm = '';
-                "
-              />
-              <p
-                @click="
-                  store.profileData = card;
-                  searchTerm = '';
-                "
+              <router-link
+                :to="{
+                  name: 'Profile',
+                  params: { profileName: card.name },
+                }"
               >
-                {{ card.name }}
-              </p>
-            </router-link>
+                <img :src="card.profileImg" />
+                <p>
+                  {{ card.name }}
+                </p>
+              </router-link>
+            </div>
           </div>
         </div>
         <p class="no-result" v-if="searchedCards.length < 1">No results</p>
@@ -283,8 +283,8 @@ onAuthStateChanged(auth, async (user) => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           store.currentUser = docSnap.data();
-          profileService.getProfiles();
-          messagesService.getMessages();
+          await profileService.getProfiles();
+          await messagesService.getMessages();
         } else {
           // doc.data() will be undefined in this case
           console.log("No such document!");
@@ -303,8 +303,8 @@ onAuthStateChanged(auth, async (user) => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         store.currentUser = docSnap.data();
-        profileService.getProfiles();
-        messagesService.getMessages();
+        await profileService.getProfiles();
+        await messagesService.getMessages();
       } else {
         // doc.data() will be undefined in this case
         console.log("No such document!");
@@ -747,6 +747,7 @@ export default {
     top: 65px;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     border-radius: 5px;
+    min-width: 300px;
 
     h3 {
       padding: 12px;
@@ -755,6 +756,10 @@ export default {
     &__messageArea {
       border-top: 1px solid color(border);
       border-bottom: 1px solid color(border);
+
+      &__noChats {
+        padding: 12px;
+      }
 
       &__message {
         display: flex;

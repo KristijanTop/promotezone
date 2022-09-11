@@ -1,16 +1,14 @@
 <template>
   <div class="card">
     <div class="card__header">
-      <router-link
-        :to="{ name: 'Profile', params: { profileName: card.name } }"
-      >
-        <img
-          :src="card.profileImg"
-          @click="store.profileData = card"
-          class="profileImg"
-        />
-        <span @click="store.profileData = card">{{ card.name }}</span>
-      </router-link>
+      <div @click="store.profileData = card">
+        <router-link
+          :to="{ name: 'Profile', params: { profileName: card.name } }"
+        >
+          <img :src="card.profileImg" class="profileImg" />
+          <span @click="store.profileData = card">{{ card.name }}</span>
+        </router-link>
+      </div>
       <more-dropdown :profile="card" />
     </div>
     <div class="card__img">
@@ -56,12 +54,12 @@ export default {
 .card {
   margin: 50px 0;
   background-color: #fff;
-  max-width: 500px;
+  width: 500px;
   border-radius: 7px;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 
   @include breakpoint3 {
-    max-width: 90vw;
+    width: 90vw;
   }
 
   &__header {
@@ -93,12 +91,15 @@ export default {
     overflow: hidden;
     cursor: pointer;
     height: 500px;
+    border-bottom: 1px solid color(border);
+    border-top: 1px solid color(border);
 
     @include breakpoint3 {
       height: 90vw;
     }
 
     img {
+      height: 100%;
       width: 100%;
       object-fit: cover;
       position: relative;

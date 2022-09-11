@@ -17,34 +17,22 @@ const routes = [
   {
     path: '/FrontPage',
     name: 'FrontPage',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/FrontPage.vue')
+    component: () => import('../views/FrontPage.vue')
   },
   {
     path: '/Register',
     name: 'Register',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Register.vue')
+    component: () => import('../views/Register.vue')
   },
   {
     path: '/Login',
     name: 'Login',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
+    component: () => import('../views/Login.vue')
   },
   {
     path: '/MyCollaborators',
     name: 'MyCollaborators',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/MyCollaborators.vue'),
+    component: () => import('../views/MyCollaborators.vue'),
     meta: {
       needsUser: true,
     }
@@ -52,10 +40,7 @@ const routes = [
   {
     path: '/Messages',
     name: 'Messages',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Messages.vue'),
+    component: () => import('../views/Messages.vue'),
     meta: {
       needsUser: true,
     }
@@ -63,10 +48,7 @@ const routes = [
   {
     path: '/Settings',
     name: 'Settings',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Settings.vue'),
+    component: () => import('../views/Settings.vue'),
     meta: {
       needsUser: true,
     }
@@ -74,10 +56,7 @@ const routes = [
   {
     path: '/:username',
     name: 'MyProfile',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/MyProfile.vue'),
+    component: () => import('../views/MyProfile.vue'),
     meta: {
       needsUser: true,
     }
@@ -85,10 +64,7 @@ const routes = [
   {
     path: '/:profileName',
     name: 'Profile',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Profile.vue'),
+    component: () => import('../views/Profile.vue'),
     meta: {
       needsUser: true,
     }

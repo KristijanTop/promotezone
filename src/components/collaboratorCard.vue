@@ -1,25 +1,27 @@
 <template>
   <div class="collaboratorCard">
-    <router-link :to="{ name: 'Profile', params: { profileName: card.name } }">
-      <img
-        :src="card.profileImg"
-        class="profileImg"
-        @click="store.profileData = card"
-      />
-    </router-link>
+    <div @click="store.profileData = card">
+      <router-link
+        :to="{ name: 'Profile', params: { profileName: card.name } }"
+      >
+        <img :src="card.profileImg" class="profileImg" />
+      </router-link>
+    </div>
+
     <div class="collaboratorCard__content">
       <div class="collaboratorCard__content__header">
         <div class="collaboratorCard__content__header__text">
+          <div @click="store.profileData = card">
           <router-link
             :to="{ name: 'Profile', params: { profileName: card.name } }"
           >
             <img
               :src="card.profileImg"
               class="profileImgMobile"
-              @click="store.profileData = card"
             />
             <h3 @click="store.profileData = card">{{ card.name }}</h3>
           </router-link>
+          </div>
           <a :href="card.instagram" target="_blank" v-if="card.instagram">
             <icon-library name="instagram" />
           </a>

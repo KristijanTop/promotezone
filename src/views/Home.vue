@@ -39,41 +39,37 @@
           >
             <div class="img-slide">
               <div class="img-slide__heading-mobile">
-                <router-link
-                  :to="{
-                    name: 'Profile',
-                    params: { profileName: cardData.name },
-                  }"
-                >
-                  <img
-                    class="profileImg"
-                    :src="cardData.profileImg"
-                    @click="store.profileData = cardData"
-                  />
-                  <h4 @click="store.profileData = cardData">
-                    {{ cardData.name }}
-                  </h4>
-                </router-link>
-                <more-dropdown :profile="cardData" />
-              </div>
-              <img class="image" :src="image.url" />
-              <div class="img-slide__content">
-                <div class="img-slide__content__heading">
+                <div @click="store.profileData = cardData">
                   <router-link
                     :to="{
                       name: 'Profile',
                       params: { profileName: cardData.name },
                     }"
                   >
-                    <img
-                      class="profileImg"
-                      :src="cardData.profileImg"
-                      @click="store.profileData = cardData"
-                    />
-                    <h3 @click="store.profileData = cardData">
+                    <img class="profileImg" :src="cardData.profileImg" />
+                    <h4>
                       {{ cardData.name }}
-                    </h3>
+                    </h4>
                   </router-link>
+                </div>
+                <more-dropdown :profile="cardData" />
+              </div>
+              <img class="image" :src="image.url" />
+              <div class="img-slide__content">
+                <div class="img-slide__content__heading">
+                  <div @click="store.profileData = cardData">
+                    <router-link
+                      :to="{
+                        name: 'Profile',
+                        params: { profileName: cardData.name },
+                      }"
+                    >
+                      <img class="profileImg" :src="cardData.profileImg" />
+                      <h3>
+                        {{ cardData.name }}
+                      </h3>
+                    </router-link>
+                  </div>
                   <more-dropdown :profile="cardData" />
                 </div>
                 <span class="img-slide__content__location"
