@@ -1,6 +1,6 @@
 # PROMOTEZONE
 
-The app that connects brands with promoters with live chat functionality and more. Create a promo account and start searching for brands to promote, or create a business account and find promoters for your own brand.
+App that connects brands with promoters with live chat functionality and more. Create a promo account and start searching for brands to promote, or create a business account and find promoters for your own brand.
 
 ![Screenshot_87](https://github.com/KristijanTop/promotezone/assets/75444130/d81f3921-293b-44fc-9450-85d63fec30be)
 ![Screenshot_2](https://github.com/KristijanTop/promotezone/assets/75444130/a4362f4e-82e9-4612-b426-eba3ca3deb93)
